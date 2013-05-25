@@ -116,6 +116,13 @@ end
 pause(3);
 fr = lcaGetSmart(strcat(par.cams(:,2),':FRAME_RATE'));
 ifr = find(fr == 0);
+while ~isempty(ifr)
+    reply = input('Some cameras are not triggered. Press "t" to check again. Press any key to move on without them.\n','s');
+    if ~strcmp(reply,'t'); break; end;
+    fr = lcaGetSmart(strcat(par.cams(:,2),':FRAME_RATE'));
+    ifr = find(fr == 0);
+end
+
 if ~isempty(ifr)
     for f = 1:length(ifr)
         warning('Camera %s is not triggered. Camera will be removed from list.',char(par.cams(ifr(f),1)));
@@ -127,8 +134,16 @@ if ~isempty(ifr)
     end
     par.cams(ifr,:) = [];
 end
+
 sd = lcaGetSmart(strcat(par.cams(:,2),':STATUS_DAQ'));
 isd = find(sd ~= 0);
+while ~isempty(isd)
+    reply = input('Some cameras have bad DAQ status. Press "t" to check again. Press any key to move on without them.\n','s');
+    if ~strcmp(reply,'t'); break; end;
+    sd = lcaGetSmart(strcat(par.cams(:,2),':STATUS_DAQ'));
+    isd = find(sd == 0);
+end
+
 if ~isempty(isd)
     for s = 1:length(isd)
         warning('Camera %s has bad DAQ status. Camera will be removed from list.',char(par.cams(isd(s),1)));

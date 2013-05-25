@@ -9,6 +9,8 @@ ROI_Y = lcaGetSmart(strcat(cams(:,2), ':ROI_Y'));
 ROI_XNP = lcaGetSmart(strcat(cams(:,2), ':ROI_XNP'));
 ROI_YNP = lcaGetSmart(strcat(cams(:,2), ':ROI_YNP'));
 RESOLUTION = lcaGetSmart(strcat(cams(:,2), ':RESOLUTION'));
+X_ORIENT = lcaGetSmart(strcat(cams(:,2), ':X_ORIENT'));
+Y_ORIENT = lcaGetSmart(strcat(cams(:,2), ':Y_ORIENT'));
 
 for i=1:size(img,1)
     if size(img,2)>1
@@ -22,6 +24,8 @@ for i=1:size(img,1)
     background.(char(cams(i,1))).ROI_XNP = ROI_XNP(i);
     background.(char(cams(i,1))).ROI_YNP = ROI_YNP(i);
     background.(char(cams(i,1))).RESOLUTION = RESOLUTION(i);
+    background.(char(cams(i,1))).X_ORIENT = X_ORIENT(i);
+    background.(char(cams(i,1))).Y_ORIENT = Y_ORIENT(i);
 end
 
 set_2_9(0);

@@ -33,7 +33,17 @@ param = E200_path_diary(param);
 
 if(param.save_facet); facet_state = facet_getMachine(); else facet_state = 0; end;
 
-if(param.save_E200); E200_state = E200_getMachine(); else E200_state = 0; end;
+if(param.save_E200); 
+    try
+        E200_state = E200_getMachine(); 
+    catch
+        disp('Failed to get non BSA EPICS PVs. Check list for bad PVs.');
+        E200_state = 0;
+    end
+    
+else
+    E200_state = 0;
+end
 
 if(param.save_back); cam_back = E200_takeBackground(param.cams); else cam_back = 0; end;
 

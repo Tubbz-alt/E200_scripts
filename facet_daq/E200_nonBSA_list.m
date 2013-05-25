@@ -12,6 +12,9 @@ nonBSA_list{end+1,1} = 'DR12:PHAS:61:VDES';          % Phase ramp set [deg]
 nonBSA_list{end+1,1} = 'DR12:PHAS:61:VACT';          % Phase ramp read back [deg]
 nonBSA_list{end+1,1} = 'DR13:AMPL:11:VDES';          % Compressor amplitude set [deg]
 nonBSA_list{end+1,1} = 'DR13:AMPL:11:VACT';          % Compressor amplitude read back [deg]
+nonBSA_list{end+1,1} = 'DR13:TORO:40:DATA';          % NRTL Charge
+nonBSA_list{end+1,1} = 'DR13:KLYS:1:PDES';           % NRTL Phase Setting
+nonBSA_list{end+1,1} = 'DR13:KLYS:1:PHAS';           % NRTL Phase Setting
 
 nonBSA_list{end+1,1} = 'LI20:LGPS:3011:BDES';        % QFF 1 [kG]
 nonBSA_list{end+1,1} = 'LI20:LGPS:3031:BDES';        % QFF 2 [kG]
@@ -170,6 +173,76 @@ nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO027';       % TORO 3163 TMIT SLOPE
 nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO028';       % TORO 3163 TMIT OFFSET
 nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO029';       % TORO 3255 TMIT SLOPE
 nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO030';       % TORO 3255 TMIT OFFSET
+
+% Waist and beta info from Glen/Nate
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO351';       % X Waist Z
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO352';       % Beta X
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO353';       % Y Waist Z
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO354';       % Beta Y
+
+% YAG Lineout Info
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO751';       % YAG Line Low
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO752';       % YAG Line High
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO753';       % YAG Line Left
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO754';       % YAG Line Right
+
+% Dispersion at YAG
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO855';       % Dispersion at sYAG
+
+% NDR Info
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO851';       % Last time measured
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO852';       % Gap Voltage
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO853';       % Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO854';       % Bunch Length
+
+% LiTrack Simulation Parameters
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO801';       % NDR Z0
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO802';       % NDR D0
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO803';       % NDR NPART
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO804';       % NDR ASYM
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO805';       % NRTL AMPL
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO806';       % NRTL PHAS
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO807';       % NRTL R56
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO808';       % NRTL T566
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO809';       % PHAS 2-10
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO810';       % PHAS 11-20
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO811';       % PHAS RAMP
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO812';       % LI20 BETA
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO813';       % LI20 R56
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO814';       % LI20 T166
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO835';       % LI20 HI E CUT
+
+% LiTrack Bunch Parameters
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO816';       % YAG FWHM
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO817';       % YAG RMS
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO818';       % ENERGY OFFSET
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO819';       % Li YAG FWHM
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO820';       % Li YAG RMS
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO821';       % Li PROF FWHM/2.35
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO822';       % Li PROF RMS
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO823';       % Li PROF RMS w/15% FLOOR CUT
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:AO833';       % Li PEAK CURRENT
+
+% LiTrack Calculations
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:CALC801';     % Calculated NDR bunch length
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:CALC805';     % Adjusted NRTL AMPL
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML00:CALC806';     % NRTL Phase offset
+
+% E200 Display Info
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO061';       % E200 CEGAIN Max Energy 1
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO062';       % E200 CEGAIN Max Energy 2
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO063';       % E200 CEGAIN Max Energy 3
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO064';       % E200 CEGAIN Acc Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO065';       % E200 CEGAIN Unaffected Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO066';       % E200 CELOSS Min Energy
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO067';       % E200 CELOSS Dec Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO068';       % E200 CELOSS Unaffected Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO069';       % E200 BETAL Gamma Yield
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO070';       % E200 BETAL Gamma Max
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO071';       % E200 BETAL Gamma Div
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO072';       % E200 Excess Charge
+nonBSA_list{end+1,1} = 'SIOC:SYS1:ML01:AO073';       % E200 Transformer
+
 %-------------------------------------------------------------------------%
 % String PVs - can't do a combined lcaGet with string PVs and number PVs
 good_strings = cell(0,1);

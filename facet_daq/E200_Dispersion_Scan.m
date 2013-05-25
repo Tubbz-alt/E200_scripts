@@ -1,4 +1,4 @@
-function E200_Dispersion_Scan(E_range_low, E_range_high, n_step, n_shot, cam_config)
+function s_name = E200_Dispersion_Scan(E_range_low, E_range_high, n_step, n_shot, cam_config)
 % E200 Dispersion Scan:
 %   E_range_low: Energy relative to current set point  (MeV)
 %   E_range_high: Energy relative to current set point (MeV)
@@ -14,7 +14,7 @@ else
 end
 
 par.save_facet = 0;
-par.save_E200 = 1;
+par.save_E200 = 0;
 par.aida_daq = 1;
 par.bpmd = 'NDRFACET';
 par.n_shot = n_shot;
@@ -75,16 +75,16 @@ try
     for ix = 1:n_step
 
         % set energy here
-        disp(['Setting knob to ' num2str(range(ix))]);
+        disp(['Step ' num2str(ix) '. Setting knob to ' num2str(range(ix))]);
         da.setDaValue('MKB//VAL', DaValue(java.lang.Float(phase_deltas(ix))));
         pause(1.0);
         % calculate energy from phase readback here
         phase(ix, :) = reshape(lcaGetSmart(fast.name), 1, []);  %phase(:, [1:3]) is VDES
         pact = klys.phas + repmat(sbst.phas, 8, 1) + repmat(phase(ix, [1 3]), 8, 1);
         energy(ix) = sum(sum(klys.act .* klys.enld .* cosd(pact))) - egain;
-
+        disp(['Energy is ' num2str(energy(ix),'%0.2f')]);
         % acquire data here
-        if ix>1; par.set_print2elog=0; par.increment_save_num=0; par.save_facet=0; par.save_E200=0; end;
+        if ix>1; par.set_print2elog=0; par.increment_save_num=0; par.save_facet=0; par.save_E200=0; par.save_back = 0;end;
         [a, b, c, d, filenames, par_out] = E200_DAQ_2013(par);
         filenames.Control_PV_name = 'SCAVENGY.MKB';  % ***temp
         filenames.Control_PV = energy(ix);
@@ -106,5 +106,7 @@ end
 lcaPutSmart(fbpv,fbstate);
 
 disp('Acquisition finished.');
-
-save([par_out.save_path{1} '/' par_out.save_name(1:11) 'scan_info'], 'scan_info');
+s_name = [par_out.save_path{1} '/' par_out.save_name(1:11) 'scan_info'];
+save(s_name, 'scan_info');
+disp('Dispersion Analysis. . .');
+DISP_ANA(s_name,0,1,0);

@@ -192,4 +192,43 @@ elseif par.camera_config == 23
     % minimal intrusion config for testing
     par.cams = {'HALO', 'EXPT:LI20:3203'};
     
+elseif par.camera_config == 24
+    % Erik fix me!
+    par.cams = {'CELOSS',    'PROF:LI20:3483'};
+    
+elseif par.camera_config == 25
+    % Erik fix me!
+    par.cams = {'CELOSS',    'PROF:LI20:3483'};
+     
+elseif par.camera_config == 26
+    % Erik fix me!
+    par.cams = {'CELOSS',    'PROF:LI20:3483'};
+    
+elseif par.camera_config == 27
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'IPOTR',    'OTRS:LI20:3180';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA1',    'PROF:LI20:3487';
+            'BETA2',    'PROF:LI20:3488'};
+        
+elseif par.camera_config == 28
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'IPOTR',    'OTRS:LI20:3180';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'IP2A',     'MIRR:LI20:3202';
+            'BETA2',    'PROF:LI20:3488'};
+
+elseif par.camera_config == 29
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'BETAL',    'PROF:LI20:3486';
+            'BREAKDOWN', 'EXPT:LI20:3208';
+            'IP2B',     'MIRR:LI20:3230'};
+else
+    error('Camera config %d does not exist',par.camera_config);
+        
 end

@@ -39,7 +39,7 @@ y_0 = y_meas(1,2) + offset;
 p_fit = 0:40;
 y_fit = P(2) + P(1)*p_fit;
 
-p = 1:1e-3:65;
+p = 1:1e-3:150;
 y = y_inf + (y_0 - y_inf)*p_0./p;
 
 if(visu)
