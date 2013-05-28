@@ -8,6 +8,8 @@ output.ROI_YNP = lcaGetSmart(strcat(CAM_PV, ':ROI_YNP'));
 output.RESOLUTION = lcaGetSmart(strcat(CAM_PV, ':RESOLUTION'));
 output.X_RTCL_CTR = lcaGetSmart(strcat(CAM_PV, ':X_RTCL_CTR'));
 output.Y_RTCL_CTR = lcaGetSmart(strcat(CAM_PV, ':Y_RTCL_CTR'));
+output.X_ORIENT = lcaGetSmart(strcat(CAM_PV, ':X_ORIENT'));
+output.Y_ORIENT = lcaGetSmart(strcat(CAM_PV, ':Y_ORIENT'));
 
 
 if size(img,2)>1
