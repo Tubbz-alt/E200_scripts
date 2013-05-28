@@ -5,12 +5,12 @@
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/facet_daq/');
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/my_ana/');
 
+prefix = '/Volumes/PWFA 4big';
 day = '20130428';
 data_set = 'E200_10794';
 do_save = 0;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
     
-if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
     
 %%
 
@@ -23,8 +23,8 @@ F = [0 0.25 0.5 0.75 1];
 G = linspace(0, 1, 256);
 cmap = interp1(F,D,G);
 
-path = ['/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
-prefix = '/Volumes/PWFA 4big';
+path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
+if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
 
 BETAL_caxis = [0 1000];
 CEGAIN_caxis = [0.5 3.2];
@@ -80,12 +80,13 @@ derived.(char(data_set)).E_EMAX3_ind = zeros(n_step, n_shot);
 derived.(char(data_set)).PYRO = zeros(n_step, n_shot);
 derived.(char(data_set)).EX_CHARGE = zeros(n_step, n_shot);
 
+clear waterfall;
+waterfall.(char(data_set)).CEGAIN = zeros(1392, n_shot, n_step);
+waterfall.(char(data_set)).CEGAIN2 = zeros(1392, n_shot, n_step);
+waterfall.(char(data_set)).CELOSS = zeros(1392, n_shot, n_step);
+
 E_EGAIN = E200_cher_get_E_axis('20130423', 'CEGAIN', 0, 1:1392);
 E_ELOSS = E200_cher_get_E_axis('20130423', 'CELOSS', 0, 1:1392);
-
-waterfall.CEGAIN = zeros(1392, n_shot, n_step);
-waterfall.CEGAIN2 = zeros(1392, n_shot, n_step);
-waterfall.CELOSS = zeros(1392, n_shot, n_step);
 
 %%
 
@@ -100,9 +101,9 @@ for i=1:n_step
 % i=3;
 data = load([path mat_filenames{i}]);
 
-[BETAL.img, ~, BETAL.meta] = E200_readImages([prefix scan_info(i).BETAL]);
-[CEGAIN.img, ~, CEGAIN.meta] = E200_readImages([prefix scan_info(i).CEGAIN]);
-[CELOSS.img, ~, CELOSS.meta] = E200_readImages([prefix scan_info(i).CELOSS]);
+[BETAL.img, ~, BETAL.pid] = E200_readImages([prefix scan_info(i).BETAL]);
+[CEGAIN.img, ~, CEGAIN.pid] = E200_readImages([prefix scan_info(i).CEGAIN]);
+[CELOSS.img, ~, CELOSS.pid] = E200_readImages([prefix scan_info(i).CELOSS]);
 
 BETAL.img = double(BETAL.img);
 CEGAIN.img = double(CEGAIN.img);
@@ -113,7 +114,7 @@ for j=1:size(CEGAIN.img,3); CEGAIN.img(:,:,j) = CEGAIN.img(:,:,j) - cam_back.CEG
 for j=1:size(CELOSS.img,3); CELOSS.img(:,:,j) = CELOSS.img(:,:,j) - cam_back.CELOSS.img(:,:); end;
 
 pid = [data.epics_data.PATT_SYS1_1_PULSEID];
-[C, IA, IB] = intersect(BETAL.meta{2}, pid', 'stable');
+[C, IA, IB] = intersect(BETAL.pid, pid', 'stable');
 USTORO = E200_state.SIOC_SYS1_ML01_AO028 + E200_state.SIOC_SYS1_ML01_AO027*[data.epics_data.GADC0_LI20_EX01_AI_CH2_];
 DSTORO = E200_state.SIOC_SYS1_ML01_AO030 + E200_state.SIOC_SYS1_ML01_AO029*[data.epics_data.GADC0_LI20_EX01_AI_CH3_];
 derived.(char(data_set)).EX_CHARGE(i,:) = 1.6e-7*(DSTORO(IB) - USTORO(IB));
@@ -123,9 +124,9 @@ derived.(char(data_set)).PYRO(i,:) = PYRO(IB);
 for j=1:n_shot
     
     
-    disp(BETAL.meta{2}(j));
-    disp(CEGAIN.meta{2}(j));
-    disp(CELOSS.meta{2}(j));
+    disp(BETAL.pid(j));
+    disp(CEGAIN.pid(j));
+    disp(CELOSS.pid(j));
     BETAL.ana = Ana_BETAL_img(BETAL.xx, BETAL.yy, BETAL.img(:,:,j));
     CEGAIN.ana = Ana_CEGAIN_img(E_EGAIN, CEGAIN.img(:,:,j));
     CELOSS.ana = Ana_CELOSS_img(E_ELOSS, CELOSS.img(:,:,j));
@@ -144,8 +145,8 @@ for j=1:n_shot
     derived.(char(data_set)).E_UNAFFECTED2(i,j) = CELOSS.ana.E_UNAFFECTED2;
     derived.(char(data_set)).E_EMIN(i,j) = CELOSS.ana.E_EMIN;
     
-    waterfall.CEGAIN(:,j,i) = CEGAIN.ana.spec;
-    waterfall.CEGAIN2(:,j,i) = CEGAIN.ana.spec2;
+    waterfall.(char(data_set)).CEGAIN(:,j,i) = CEGAIN.ana.spec;
+    waterfall.(char(data_set)).CEGAIN2(:,j,i) = CEGAIN.ana.spec2;
     
     CEGAIN.ana.img(CEGAIN.ana.img<1) = 1;
     CEGAIN.img2 = CEGAIN.img(:,:,j);
@@ -235,7 +236,7 @@ end
 %% Saving
 
 if do_save
-%     save([save_path data_set], 'derived');
+%     save([save_path data_set], 'derived', 'waterfall');
 end
 
 

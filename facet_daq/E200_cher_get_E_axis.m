@@ -7,7 +7,7 @@
 % E. Adli, Apr 27, 2013
 %   Updated for generic sbend setting
 
-function Erange = E200_cher_get_E_axis(datename, camname, visu,  pixelrange, offset, sbend_setting)
+function [Erange, Eres, Dy] = E200_cher_get_E_axis(datename, camname, visu,  pixelrange, offset, sbend_setting)
 
 if nargin < 3
   visu = 0;
@@ -26,6 +26,12 @@ if nargin < 6
   sbend_setting = 20.35;
 end % if
 
+
+granularity = 1e-3;
+if nargout > 1
+  % needed for smooth Dy calc
+  granularity = 1e-5;
+end % if
 
 
 if( strcmp(datename, '20130423') ),
@@ -59,13 +65,13 @@ if( strcmp(camname,'CEGAIN') ),
 n_range = 1:13;
 my_meas = [B5D36DES(n_range)' cog_Y_CEGAIN(n_range)'/calib_X*1e3]; % [GeV; pix]
 my_meas = [20.3500  cog_Y_CEGAIN(10)/calib_X*1e3; my_meas]; % add nominal at start
-[p,y] = E200_cher_E_calib(my_meas, 0, visu, sbend_data, sbend_setting);
+[p,y] = E200_cher_E_calib(my_meas, 0, visu, sbend_data, sbend_setting, granularity);
 elseif( strcmp(camname,'CELOSS') ),
 % CELOSS
 n_range = 8:24;
 my_meas = [B5D36DES(n_range)' cog_Y_CELOSS(n_range)'/calib_X*1e3]; % [GeV; pix]
 my_meas = [20.3500  cog_Y_CELOSS(10)/calib_X*1e3; my_meas]; % add nominal at start
-[p,y] = E200_cher_E_calib(my_meas, 0, visu, sbend_data, sbend_setting);
+[p,y] = E200_cher_E_calib(my_meas, 0, visu, sbend_data, sbend_setting, granularity);
 elseif( strcmp(camname,'CNEAR') ),
   disp('EA: no calib for CNEAR. Returning pixels');
   p=0:1393;
@@ -76,10 +82,39 @@ else
   y=0:1393;
 end% if
 
+% calc E axis
 n_count = 0;
 for ix=pixelrange,
   n_count = n_count + 1;
   n_index = max(find(y < ix));
    Erange(n_count) = p(n_index);
 end% for
+
+% calc Eres
+Yres = 290e-6;% [m] - as measured with pencil beam March 2013
+Nres = round(Yres/calib_X*1e6); % [pix]
+for ix=pixelrange(1:end-Nres),
+  Eres(ix) = Erange(ix+Nres)-Erange(ix);
+end% for
+% lin. int. for last steps
+for ix=pixelrange(end-Nres:end-1),
+  Eres(ix+1) = 2*Eres(ix)-Eres(ix-1);
+end% for
+
+
+% calc dispersion
+for ix=pixelrange(1:end-1),
+  dy = calib_X*1e-6; % [m]
+  dp = Erange(ix+1)-Erange(ix); % [GeV]
+  p0 = Erange(ix); % [GeV]
+  %p0_0 = sbend_setting;
+  Dy(ix) = dy / dp * p0;
+end% for
+% lin. int. for last step
+Dy(ix+1) = 2*Dy(ix) - Dy(ix-1);
+
+
+
+
+
 

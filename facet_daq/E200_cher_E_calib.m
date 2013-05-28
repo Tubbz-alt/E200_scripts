@@ -7,7 +7,7 @@
 % E. Adli, Apr 27, 2013
 %   Updated for generic sbend setting
 
-function [p,y] = E200_cher_E_calib(y_meas, offset, visu, sbend_data, sbend_setting)
+function [p,y] = E200_cher_E_calib(y_meas, offset, visu, sbend_data, sbend_setting, granularity)
 
 if nargin < 2
   offset = 0;
@@ -25,6 +25,11 @@ if nargin < 5
   sbend_setting = 20.35;
 end % if
 
+if nargin < 6
+  granularity = 1e-3;
+end % if
+
+
 
 % scale B5D36 in case different value from nominal
 y_meas(:,1) = y_meas(:,1) * sbend_setting / sbend_data;
@@ -39,7 +44,7 @@ y_0 = y_meas(1,2) + offset;
 p_fit = 0:40;
 y_fit = P(2) + P(1)*p_fit;
 
-p = 1:1e-3:150;
+p = 1:granularity:150;
 y = y_inf + (y_0 - y_inf)*p_0./p;
 
 if(visu)
