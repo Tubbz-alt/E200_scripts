@@ -7,8 +7,8 @@ addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/my_ana/');
 
 prefix = '/Volumes/PWFA 4big';
 day = '20130428';
-data_set = 'E200_10794';
-do_save = 0;
+data_set = 'E200_10787';
+do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
     
     
@@ -27,7 +27,7 @@ path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
 if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
 
 BETAL_caxis = [0 1000];
-CEGAIN_caxis = [0.5 3.2];
+CEGAIN_caxis = [0.8 3.2];
 CELOSS_caxis = [0.8 3.2];
 
 
@@ -71,6 +71,7 @@ derived.(char(data_set)).E_DECC = zeros(n_step, n_shot);
 derived.(char(data_set)).E_UNAFFECTED = zeros(n_step, n_shot);
 derived.(char(data_set)).E_UNAFFECTED2 = zeros(n_step, n_shot);
 derived.(char(data_set)).E_EMIN = zeros(n_step, n_shot);
+derived.(char(data_set)).E_EMIN_ind = zeros(n_step, n_shot);
 derived.(char(data_set)).E_EMAX = zeros(n_step, n_shot);
 derived.(char(data_set)).E_EMAX2 = zeros(n_step, n_shot);
 derived.(char(data_set)).E_EMAX3 = zeros(n_step, n_shot);
@@ -127,8 +128,8 @@ for j=1:n_shot
     disp(BETAL.pid(j));
     disp(CEGAIN.pid(j));
     disp(CELOSS.pid(j));
-    BETAL.ana = Ana_BETAL_img(BETAL.xx, BETAL.yy, BETAL.img(:,:,j));
-    CEGAIN.ana = Ana_CEGAIN_img(E_EGAIN, CEGAIN.img(:,:,j));
+    [BETAL.img2, BETAL.ana.img, BETAL.ana.GAMMA_YIELD, BETAL.ana.GAMMA_MAX, BETAL.ana.GAMMA_DIV] = Ana_BETAL_img(BETAL.xx, BETAL.yy, BETAL.img(:,:,j));
+    [CEGAIN.ana, CEGAIN.ana.img] = Ana_CEGAIN_img(E_EGAIN, CEGAIN.img(:,:,j));
     CELOSS.ana = Ana_CELOSS_img(E_ELOSS, CELOSS.img(:,:,j));
     derived.(char(data_set)).GAMMA_MAX(i,j) = BETAL.ana.GAMMA_MAX;
     derived.(char(data_set)).GAMMA_YIELD(i,j) = BETAL.ana.GAMMA_YIELD;
@@ -144,9 +145,11 @@ for j=1:n_shot
     derived.(char(data_set)).E_DECC(i,j) = CELOSS.ana.E_DECC;
     derived.(char(data_set)).E_UNAFFECTED2(i,j) = CELOSS.ana.E_UNAFFECTED2;
     derived.(char(data_set)).E_EMIN(i,j) = CELOSS.ana.E_EMIN;
+    derived.(char(data_set)).E_EMIN_ind(i,j) = CELOSS.ana.E_EMIN_ind;
     
     waterfall.(char(data_set)).CEGAIN(:,j,i) = CEGAIN.ana.spec;
     waterfall.(char(data_set)).CEGAIN2(:,j,i) = CEGAIN.ana.spec2;
+    waterfall.(char(data_set)).CELOSS(:,j,i) = sum(CELOSS.img(:,:,j),1);
     
     CEGAIN.ana.img(CEGAIN.ana.img<1) = 1;
     CEGAIN.img2 = CEGAIN.img(:,:,j);
@@ -160,7 +163,7 @@ for j=1:n_shot
         QS = text(0., 0., ['QS = ' num2str(scan_info(i).Control_PV) ' GeV'], 'fontsize', 20);
         SHOT = text(1., 0., ['Shot #' num2str(j)], 'fontsize', 20);
         ax_betal = axes('position', [0.05, 0.1, 0.45, 0.8]);
-        image(BETAL.xx,BETAL.yy,BETAL.img(:,:,j),'CDataMapping','scaled');
+        image(BETAL.xx,BETAL.yy,BETAL.img2,'CDataMapping','scaled');
 %         image(BETAL.xx,BETAL.yy,BETAL.ana.img,'CDataMapping','scaled');
         colormap(cmap);
         fig_betal = get(gca,'Children');
@@ -175,8 +178,8 @@ for j=1:n_shot
         xlabel('x (mm)'); ylabel('y (mm)');
         title('BETAL');
         axes('position', [0.58, 0.1, 0.1, 0.8])
-%         image(CEGAIN.yy,1:1392,log10(CEGAIN.img2'),'CDataMapping','scaled');
-        image(CEGAIN.yy,1:1392,log10(CEGAIN.ana.img'),'CDataMapping','scaled');
+        image(CEGAIN.yy,1:1392,log10(CEGAIN.img2'),'CDataMapping','scaled');
+%         image(CEGAIN.yy,1:1392,log10(CEGAIN.ana.img'),'CDataMapping','scaled');
         colormap(cmap);
         fig_cegain = get(gca,'Children');
         axis xy;
@@ -187,7 +190,7 @@ for j=1:n_shot
         axesPosition = get(gca, 'Position');
         hNewAxes = axes('Position', axesPosition, 'Color', 'none', 'YAxisLocation', 'right', 'XTick', [], ...
             'Box', 'off','YLim', [49,1392], 'YTick', 50:100:1392, ...
-            'YTickLabel', E200_cher_get_E_axis('20130423', 'CEGAIN', 0, 50:100:1392));
+            'YTickLabel', E_EGAIN(50:100:1392));
         ylabel('E (GeV)');
         title('CEGAIN (log scale)');
         axes('position', [0.8, 0.1, 0.1, 0.8])
@@ -202,21 +205,21 @@ for j=1:n_shot
         axesPosition = get(gca, 'Position');
         hNewAxes = axes('Position', axesPosition, 'Color', 'none', 'YAxisLocation', 'right', 'XTick', [], ...
             'Box', 'off','YLim', [49,1392], 'YTick', 50:100:1392, ...
-            'YTickLabel', E200_cher_get_E_axis('20130423', 'CELOSS', 0, 50:100:1392));
+            'YTickLabel', E_ELOSS(50:100:1392));
         ylabel('E (GeV)');
         title('CELOSS (log scale)');
     else
         set(QS, 'String', ['QS = ' num2str(scan_info(i).Control_PV) ' GeV']);
         set(SHOT, 'String', ['Shot #' num2str(j)]);
-        set(fig_betal,'CData',BETAL.img(:,:,j));
+        set(fig_betal,'CData',BETAL.img2);
 %         set(fig_betal,'CData',BETAL.ana.img);
         if BETAL.ana.GAMMA_MAX > BETAL_caxis(1)
             set(ax_betal, 'CLim', [BETAL_caxis(1) BETAL.ana.GAMMA_MAX]);
         else
             set(ax_betal, 'CLim', BETAL_caxis);
         end
-        set(fig_cegain,'CData',log10(CEGAIN.ana.img'));
-%         set(fig_cegain,'CData',log10(CEGAIN.img2'));
+%         set(fig_cegain,'CData',log10(CEGAIN.ana.img'));
+        set(fig_cegain,'CData',log10(CEGAIN.img2'));
         set(fig_celoss,'CData',log10(CELOSS.img2'));
     end
      if do_save
@@ -236,7 +239,7 @@ end
 %% Saving
 
 if do_save
-%     save([save_path data_set], 'derived', 'waterfall');
+    save([save_path data_set], 'derived', 'waterfall');
 end
 
 
