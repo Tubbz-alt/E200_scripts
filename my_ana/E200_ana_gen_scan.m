@@ -7,7 +7,7 @@ addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/my_ana/');
 
 prefix = '/Volumes/PWFA 4big';
 day = '20130428';
-data_set = 'E200_10787';
+data_set = 'E200_10812';
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
     
@@ -32,8 +32,20 @@ CELOSS_caxis = [0.8 3.2];
 
 
 scan_info_file = dir([path '*scan_info*']);
-load([path scan_info_file.name]);
-n_step = size(scan_info,2);
+if size(scan_info_file,1) == 1
+    load([path scan_info_file.name]);
+    n_step = size(scan_info,2);
+elseif size(scan_info_file,1) == 0
+    filenames_file = dir([path data_set '*_filenames.mat']);
+    load([path filenames_file.name]);
+    scan_info = filenames;
+    n_step = 1;
+else
+    error('There are more than 1 scan info file.');
+end
+
+
+
 
 
 list = dir([path data_set '_2013*.mat']);
@@ -160,7 +172,7 @@ for j=1:n_shot
     if i==1 && j==1
 %     if j==1
         h_text = axes('Position', [0.62, 0.95, 0.15, 0.05], 'Visible', 'off');
-        QS = text(0., 0., ['QS = ' num2str(scan_info(i).Control_PV) ' GeV'], 'fontsize', 20);
+        if n_step>1; QS = text(0., 0., ['QS = ' num2str(scan_info(i).Control_PV) ' GeV'], 'fontsize', 20); end;
         SHOT = text(1., 0., ['Shot #' num2str(j)], 'fontsize', 20);
         ax_betal = axes('position', [0.05, 0.1, 0.45, 0.8]);
         image(BETAL.xx,BETAL.yy,BETAL.img2,'CDataMapping','scaled');
@@ -209,7 +221,7 @@ for j=1:n_shot
         ylabel('E (GeV)');
         title('CELOSS (log scale)');
     else
-        set(QS, 'String', ['QS = ' num2str(scan_info(i).Control_PV) ' GeV']);
+        if n_step>1; set(QS, 'String', ['QS = ' num2str(scan_info(i).Control_PV) ' GeV']); end;
         set(SHOT, 'String', ['Shot #' num2str(j)]);
         set(fig_betal,'CData',BETAL.img2);
 %         set(fig_betal,'CData',BETAL.ana.img);
