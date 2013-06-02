@@ -19,14 +19,7 @@ save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 
 %%
 
-D = [1 1 1;
-     0 0 1;
-     0 1 0;
-     1 1 0;
-     1 0 0;];
-F = [0 0.25 0.5 0.75 1];
-G = linspace(0, 1, 256);
-cmap = interp1(F,D,G);
+cmap = custom_cmap();
 
 path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
 if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
@@ -182,7 +175,7 @@ for j=1:n_shot
         ax_betal = axes('position', [0.05, 0.1, 0.45, 0.8]);
         image(BETAL.xx,BETAL.yy,BETAL.img2,'CDataMapping','scaled');
 %         image(BETAL.xx,BETAL.yy,BETAL.ana.img,'CDataMapping','scaled');
-        colormap(cmap);
+        colormap(cmap.wbgyr);
         fig_betal = get(gca,'Children');
         daspect([1 1 1]);
         axis xy;
@@ -197,7 +190,7 @@ for j=1:n_shot
         axes('position', [0.58, 0.1, 0.1, 0.8])
         image(CEGAIN.yy,1:1392,log10(CEGAIN.img2'),'CDataMapping','scaled');
 %         image(CEGAIN.yy,1:1392,log10(CEGAIN.ana.img'),'CDataMapping','scaled');
-        colormap(cmap);
+        colormap(cmap.wbgyr);
         fig_cegain = get(gca,'Children');
         axis xy;
         caxis(CEGAIN_caxis);
@@ -212,7 +205,7 @@ for j=1:n_shot
         title('CEGAIN (log scale)');
         axes('position', [0.8, 0.1, 0.1, 0.8])
         image(CELOSS.yy,1:1392,log10(CELOSS.img2'),'CDataMapping','scaled');
-        colormap(cmap);
+        colormap(cmap.wbgyr);
         fig_celoss = get(gca,'Children');
         axis xy;
         caxis(CELOSS_caxis);

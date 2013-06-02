@@ -1,4 +1,4 @@
-% Function that output a single struct containing custom color maps.
+% Function that outputs a single struct containing custom color maps.
 
 % Sebastien Corde
 % Create: June 2, 2013
