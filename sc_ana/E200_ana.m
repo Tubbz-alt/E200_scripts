@@ -3,11 +3,12 @@
 
 % Sebastien Corde
 % Create: May 6, 2013
-% Last edit: May 29, 2013
+% Last edit: June 2, 2013
 
 %%
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/facet_daq/');
-addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/my_ana/');
+addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/sc_ana/');
+addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/tools/');
 
 prefix = '/Volumes/PWFA 4big';
 day = '20130428';
