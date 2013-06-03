@@ -12,8 +12,8 @@ addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/tools/');
 
 prefix = '/Volumes/PWFA 4big';
 day = '20130428';
-data_set = 'E200_10812';
-do_save = 0;
+data_set = 'E200_10850';
+do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 
 
@@ -21,23 +21,30 @@ save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 
 cmap = custom_cmap();
 
-path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
-if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
-
 BETAL_caxis = [0 1000];
 CEGAIN_caxis = [0.8 3.2];
 CELOSS_caxis = [0.8 3.2];
+
+
+path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
+if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
 
 
 scan_info_file = dir([path '*scan_info*']);
 if size(scan_info_file,1) == 1
     load([path scan_info_file.name]);
     n_step = size(scan_info,2);
+    is_qsbend_scan = strcmp(scan_info(1).Control_PV_name, 'set_QSBEND_energy');
+    is_qs_scan = strcmp(scan_info(1).Control_PV_name, 'set_QS_energy');
+    is_scan = 1;
 elseif size(scan_info_file,1) == 0
     filenames_file = dir([path data_set '*_filenames.mat']);
     load([path filenames_file.name]);
     scan_info = filenames;
     n_step = 1;
+    is_qsbend_scan = 0;
+    is_qs_scan = 0;
+    is_scan = 0;
 else
     error('There are more than 1 scan info file.');
 end
@@ -51,7 +58,6 @@ mat_filenames = {list.name};
 mat_filenames = {mat_filenames{1:2:end}};
 load([path mat_filenames{1}]);
 n_shot = param.n_shot;
-% load(['/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/20130428/E200_10794/E200_10794_2013-04-28-04-56-06']);
 
 
 BETAL = cam_back.BETAL;
@@ -72,32 +78,34 @@ CEGAIN.yy = 1e-3*CEGAIN.RESOLUTION * ( (CEGAIN.ROI_Y-CEGAIN.Y_RTCL_CTR+1):(CEGAI
 CELOSS.xx = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_X-CELOSS.X_RTCL_CTR+1):(CELOSS.ROI_X+CELOSS.ROI_XNP-CELOSS.X_RTCL_CTR) );
 CELOSS.yy = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_Y-CELOSS.Y_RTCL_CTR+1):(CELOSS.ROI_Y+CELOSS.ROI_YNP-CELOSS.Y_RTCL_CTR) );
 
-clear derived;
-derived.(char(data_set)).GAMMA_MAX = zeros(n_step, n_shot);
-derived.(char(data_set)).GAMMA_YIELD = zeros(n_step, n_shot);
-derived.(char(data_set)).GAMMA_DIV = zeros(n_step, n_shot);
-derived.(char(data_set)).E_ACC = zeros(n_step, n_shot);
-derived.(char(data_set)).E_DECC = zeros(n_step, n_shot);
-derived.(char(data_set)).E_UNAFFECTED = zeros(n_step, n_shot);
-derived.(char(data_set)).E_UNAFFECTED2 = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMIN = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMIN_ind = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX2 = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX3 = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX_ind = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX2_ind = zeros(n_step, n_shot);
-derived.(char(data_set)).E_EMAX3_ind = zeros(n_step, n_shot);
-derived.(char(data_set)).PYRO = zeros(n_step, n_shot);
-derived.(char(data_set)).EX_CHARGE = zeros(n_step, n_shot);
+clear processed;
+processed.scalars.GAMMA_MAX = zeros(n_step, n_shot);
+processed.scalars.GAMMA_YIELD = zeros(n_step, n_shot);
+processed.scalars.GAMMA_DIV = zeros(n_step, n_shot);
+processed.scalars.E_ACC = zeros(n_step, n_shot);
+processed.scalars.E_DECC = zeros(n_step, n_shot);
+processed.scalars.E_UNAFFECTED = zeros(n_step, n_shot);
+processed.scalars.E_UNAFFECTED2 = zeros(n_step, n_shot);
+processed.scalars.E_EMIN = zeros(n_step, n_shot);
+processed.scalars.E_EMIN_ind = zeros(n_step, n_shot);
+processed.scalars.E_EMAX = zeros(n_step, n_shot);
+processed.scalars.E_EMAX2 = zeros(n_step, n_shot);
+processed.scalars.E_EMAX3 = zeros(n_step, n_shot);
+processed.scalars.E_EMAX_ind = zeros(n_step, n_shot);
+processed.scalars.E_EMAX2_ind = zeros(n_step, n_shot);
+processed.scalars.E_EMAX3_ind = zeros(n_step, n_shot);
+processed.scalars.PYRO = zeros(n_step, n_shot);
+processed.scalars.EX_CHARGE = zeros(n_step, n_shot);
 
 clear waterfall;
-waterfall.(char(data_set)).CEGAIN = zeros(1392, n_shot, n_step);
-waterfall.(char(data_set)).CEGAIN2 = zeros(1392, n_shot, n_step);
-waterfall.(char(data_set)).CELOSS = zeros(1392, n_shot, n_step);
+waterfall.CEGAIN = zeros(1392, n_shot, n_step);
+waterfall.CEGAIN2 = zeros(1392, n_shot, n_step);
+waterfall.CELOSS = zeros(1392, n_shot, n_step);
 
-E_EGAIN = E200_cher_get_E_axis('20130423', 'CEGAIN', 0, 1:1392);
-E_ELOSS = E200_cher_get_E_axis('20130423', 'CELOSS', 0, 1:1392);
+B5D36 = getB5D36(E200_state);
+QS = getQS(E200_state);
+E_EGAIN = E200_cher_get_E_axis('20130423', 'CEGAIN', 0, 1:1392, 0, B5D36);
+E_ELOSS = E200_cher_get_E_axis('20130423', 'CELOSS', 0, 1:1392, 0, B5D36);
 
 %%
 
@@ -111,6 +119,7 @@ clf();
 for i=1:n_step
 % i=3;
 data = load([path mat_filenames{i}]);
+if is_qsbend_scan; B5D36 = 20.35 + scan_info(i).Control_PV; end;
 
 [BETAL.img, ~, BETAL.pid] = E200_readImages([prefix scan_info(i).BETAL]);
 [CEGAIN.img, ~, CEGAIN.pid] = E200_readImages([prefix scan_info(i).CEGAIN]);
@@ -128,38 +137,40 @@ pid = [data.epics_data.PATT_SYS1_1_PULSEID];
 [C, IA, IB] = intersect(BETAL.pid, pid', 'stable');
 USTORO = E200_state.SIOC_SYS1_ML01_AO028 + E200_state.SIOC_SYS1_ML01_AO027*[data.epics_data.GADC0_LI20_EX01_AI_CH2_];
 DSTORO = E200_state.SIOC_SYS1_ML01_AO030 + E200_state.SIOC_SYS1_ML01_AO029*[data.epics_data.GADC0_LI20_EX01_AI_CH3_];
-derived.(char(data_set)).EX_CHARGE(i,:) = 1.6e-7*(DSTORO(IB) - USTORO(IB));
+processed.scalars.EX_CHARGE(i,:) = 1.6e-7*(DSTORO(IB) - USTORO(IB));
 PYRO = [data.epics_data.BLEN_LI20_3014_BRAW];
-derived.(char(data_set)).PYRO(i,:) = PYRO(IB);
+processed.scalars.PYRO(i,:) = PYRO(IB);
 
 for j=1:n_shot
+    fprintf('\n%d \t %d \t %d\n', BETAL.pid(j), CEGAIN.pid(j), CELOSS.pid(j));
     
-    
-    disp(BETAL.pid(j));
-    disp(CEGAIN.pid(j));
-    disp(CELOSS.pid(j));
     [BETAL.img2, BETAL.ana.img, BETAL.ana.GAMMA_YIELD, BETAL.ana.GAMMA_MAX, BETAL.ana.GAMMA_DIV] = Ana_BETAL_img(BETAL.xx, BETAL.yy, BETAL.img(:,:,j));
     [CEGAIN.ana, CEGAIN.ana.img] = Ana_CEGAIN_img(E_EGAIN, CEGAIN.img(:,:,j));
     CELOSS.ana = Ana_CELOSS_img(E_ELOSS, CELOSS.img(:,:,j));
-    derived.(char(data_set)).GAMMA_MAX(i,j) = BETAL.ana.GAMMA_MAX;
-    derived.(char(data_set)).GAMMA_YIELD(i,j) = BETAL.ana.GAMMA_YIELD;
-    derived.(char(data_set)).GAMMA_DIV(i,j) = BETAL.ana.GAMMA_DIV;
-    derived.(char(data_set)).E_ACC(i,j) = CEGAIN.ana.E_ACC;
-    derived.(char(data_set)).E_UNAFFECTED(i,j) = CEGAIN.ana.E_UNAFFECTED;
-    derived.(char(data_set)).E_EMAX(i,j) = CEGAIN.ana.E_EMAX;
-    derived.(char(data_set)).E_EMAX2(i,j) = CEGAIN.ana.E_EMAX2;
-    derived.(char(data_set)).E_EMAX3(i,j) = CEGAIN.ana.E_EMAX3;
-    derived.(char(data_set)).E_EMAX_ind(i,j) = CEGAIN.ana.E_EMAX_ind;
-    derived.(char(data_set)).E_EMAX2_ind(i,j) = CEGAIN.ana.E_EMAX2_ind;
-    derived.(char(data_set)).E_EMAX3_ind(i,j) = CEGAIN.ana.E_EMAX3_ind;
-    derived.(char(data_set)).E_DECC(i,j) = CELOSS.ana.E_DECC;
-    derived.(char(data_set)).E_UNAFFECTED2(i,j) = CELOSS.ana.E_UNAFFECTED2;
-    derived.(char(data_set)).E_EMIN(i,j) = CELOSS.ana.E_EMIN;
-    derived.(char(data_set)).E_EMIN_ind(i,j) = CELOSS.ana.E_EMIN_ind;
     
-    waterfall.(char(data_set)).CEGAIN(:,j,i) = CEGAIN.ana.spec;
-    waterfall.(char(data_set)).CEGAIN2(:,j,i) = CEGAIN.ana.spec2;
-    waterfall.(char(data_set)).CELOSS(:,j,i) = sum(CELOSS.img(:,:,j),1);
+    processed.scalars.GAMMA_MAX(i,j) = BETAL.ana.GAMMA_MAX;
+    processed.scalars.GAMMA_YIELD(i,j) = BETAL.ana.GAMMA_YIELD;
+    processed.scalars.GAMMA_DIV(i,j) = BETAL.ana.GAMMA_DIV;
+    processed.scalars.E_ACC(i,j) = CEGAIN.ana.E_ACC;
+    processed.scalars.E_UNAFFECTED(i,j) = CEGAIN.ana.E_UNAFFECTED;
+    processed.scalars.E_EMAX(i,j) = CEGAIN.ana.E_EMAX;
+    processed.scalars.E_EMAX2(i,j) = CEGAIN.ana.E_EMAX2;
+    processed.scalars.E_EMAX3(i,j) = CEGAIN.ana.E_EMAX3;
+    processed.scalars.E_EMAX_ind(i,j) = CEGAIN.ana.E_EMAX_ind;
+    processed.scalars.E_EMAX2_ind(i,j) = CEGAIN.ana.E_EMAX2_ind;
+    processed.scalars.E_EMAX3_ind(i,j) = CEGAIN.ana.E_EMAX3_ind;
+    processed.scalars.E_DECC(i,j) = CELOSS.ana.E_DECC;
+    processed.scalars.E_UNAFFECTED2(i,j) = CELOSS.ana.E_UNAFFECTED2;
+    processed.scalars.E_EMIN(i,j) = CELOSS.ana.E_EMIN;
+    processed.scalars.E_EMIN_ind(i,j) = CELOSS.ana.E_EMIN_ind;
+    
+    processed.vectors.CEGAIN_SPEC = CEGAIN.ana.spec;
+    processed.vectors.CEGAIN_SPEC2 = CEGAIN.ana.spec2;
+    processed.vectors.CELOSS_SPEC = sum(CELOSS.img(:,:,j),1);
+    
+    waterfall.CEGAIN(:,j,i) = processed.vectors.CEGAIN_SPEC;
+    waterfall.CEGAIN2(:,j,i) = processed.vectors.CEGAIN_SPEC2;
+    waterfall.CELOSS(:,j,i) = processed.vectors.CELOSS_SPEC;
     
     CEGAIN.ana.img(CEGAIN.ana.img<1) = 1;
     CEGAIN.img2 = CEGAIN.img(:,:,j);
@@ -169,9 +180,15 @@ for j=1:n_shot
     
     if i==1 && j==1
 %     if j==1
-        h_text = axes('Position', [0.62, 0.95, 0.15, 0.05], 'Visible', 'off');
-        if n_step>1; QS = text(0., 0., ['QS = ' num2str(scan_info(i).Control_PV) ' GeV'], 'fontsize', 20); end;
-        SHOT = text(1., 0., ['Shot #' num2str(j)], 'fontsize', 20);
+        h_text = axes('Position', [0.17, 0.8, 0.3, 0.035], 'Visible', 'off');
+        if is_scan; STEP = text(0., 1., [char(regexprep(scan_info(i).Control_PV_name, '_', '\\_')) ' = ' num2str(scan_info(i).Control_PV)], 'fontsize', 20); end;
+        SHOT = text(0., 0., ['Shot #' num2str(j)], 'fontsize', 20);
+        h_text2 = axes('Position', [0.58, 0.95, 0.2, 0.05], 'Visible', 'off');
+        if is_qs_scan; B5D36_text = text(0., 0., ['B5D36 = ' num2str(B5D36, '%.2f') ' GeV'], 'fontsize', 20); end;
+        if ~is_qs_scan && ~is_qsbend_scan; 
+            QS_text = text(1., 0., ['QS = ' num2str(QS, '%.0f') ' GeV'], 'fontsize', 20);
+            B5D36_text = text(0., 0., ['B5D36 = ' num2str(B5D36, '%.2f') ' GeV'], 'fontsize', 20);
+        end;
         ax_betal = axes('position', [0.05, 0.1, 0.45, 0.8]);
         image(BETAL.xx,BETAL.yy,BETAL.img2,'CDataMapping','scaled');
 %         image(BETAL.xx,BETAL.yy,BETAL.ana.img,'CDataMapping','scaled');
@@ -219,7 +236,7 @@ for j=1:n_shot
         ylabel('E (GeV)');
         title('CELOSS (log scale)');
     else
-        if n_step>1; set(QS, 'String', ['QS = ' num2str(scan_info(i).Control_PV) ' GeV']); end;
+        if is_scan; set(STEP, 'String', [char(regexprep(scan_info(i).Control_PV_name, '_', '\\_')) ' = ' num2str(scan_info(i).Control_PV)]); end;
         set(SHOT, 'String', ['Shot #' num2str(j)]);
         set(fig_betal,'CData',BETAL.img2);
 %         set(fig_betal,'CData',BETAL.ana.img);
@@ -236,7 +253,6 @@ for j=1:n_shot
          filename = ['frame_' num2str(i, '%.2d') '_' num2str(j, '%.3d') '.png'];
          print('-f1', [save_path data_set '/frames/' filename], '-dpng', '-r100');
      else
-%          pause;
          pause(0.1);
      end
 end
@@ -248,8 +264,12 @@ end
 
 %% Saving
 
+clear tmp;
 if do_save
-    save([save_path data_set], 'derived', 'waterfall');
+    if exist([save_path data_set '.mat'], 'file'); tmp = load([save_path data_set]); end;
+    tmp.data.user.scorde.processed = processed;
+    tmp.data.user.scorde.waterfall = waterfall;
+    save([save_path data_set '.mat'], '-struct', 'tmp');
 end
 
 
