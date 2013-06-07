@@ -1,20 +1,23 @@
 
-% Script to analyze E200 2013 data
+% Script to analyze E200 2013 data with original data structure.
 
 % Sebastien Corde
 % Create: May 6, 2013
-% Last edit: June 2, 2013
+% Last edit: June 7, 2013
 
 %%
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/facet_daq/');
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/sc_ana/');
 addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/tools/');
+addpath('~/Dropbox/SeB/Codes/sources/E200_data/');
 
-prefix = '/Volumes/PWFA 4big';
+prefix = '/Volumes/PWFA_4big';
 day = '20130428';
-data_set = 'E200_10850';
+experiment = 'E200';
+data_set_num = 10850;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
+data_set = [experiment '_' num2str(data_set_num)];
 
 
 %%
@@ -79,23 +82,51 @@ CELOSS.xx = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_X-CELOSS.X_RTCL_CTR+1):(CELOS
 CELOSS.yy = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_Y-CELOSS.Y_RTCL_CTR+1):(CELOSS.ROI_Y+CELOSS.ROI_YNP-CELOSS.Y_RTCL_CTR) );
 
 clear processed;
-processed.scalars.GAMMA_MAX = zeros(n_step, n_shot);
-processed.scalars.GAMMA_YIELD = zeros(n_step, n_shot);
-processed.scalars.GAMMA_DIV = zeros(n_step, n_shot);
-processed.scalars.E_ACC = zeros(n_step, n_shot);
-processed.scalars.E_DECC = zeros(n_step, n_shot);
-processed.scalars.E_UNAFFECTED = zeros(n_step, n_shot);
-processed.scalars.E_UNAFFECTED2 = zeros(n_step, n_shot);
-processed.scalars.E_EMIN = zeros(n_step, n_shot);
-processed.scalars.E_EMIN_ind = zeros(n_step, n_shot);
-processed.scalars.E_EMAX = zeros(n_step, n_shot);
-processed.scalars.E_EMAX2 = zeros(n_step, n_shot);
-processed.scalars.E_EMAX3 = zeros(n_step, n_shot);
-processed.scalars.E_EMAX_ind = zeros(n_step, n_shot);
-processed.scalars.E_EMAX2_ind = zeros(n_step, n_shot);
-processed.scalars.E_EMAX3_ind = zeros(n_step, n_shot);
-processed.scalars.PYRO = zeros(n_step, n_shot);
-processed.scalars.EX_CHARGE = zeros(n_step, n_shot);
+processed.scalars.GAMMA_MAX.dat = [];
+processed.scalars.GAMMA_YIELD.dat = [];
+processed.scalars.GAMMA_DIV.dat = [];
+processed.scalars.E_ACC.dat = [];
+processed.scalars.E_DECC.dat = [];
+processed.scalars.E_UNAFFECTED.dat = [];
+processed.scalars.E_UNAFFECTED2.dat = [];
+processed.scalars.E_EMIN.dat = [];
+processed.scalars.E_EMIN_ind.dat = [];
+processed.scalars.E_EMAX.dat = [];
+processed.scalars.E_EMAX2.dat = [];
+processed.scalars.E_EMAX3.dat = [];
+processed.scalars.E_EMAX_ind.dat = [];
+processed.scalars.E_EMAX2_ind.dat = [];
+processed.scalars.E_EMAX3_ind.dat = [];
+
+processed.scalars.PYRO.dat = [];
+processed.scalars.EX_CHARGE.dat = [];
+    
+processed.vectors.CEGAIN_SPEC.dat = {};
+processed.vectors.CEGAIN_SPEC2.dat = {};
+processed.vectors.CELOSS_SPEC.dat = {};
+
+processed.scalars.GAMMA_MAX.UID = [];
+processed.scalars.GAMMA_YIELD.UID = [];
+processed.scalars.GAMMA_DIV.UID = [];
+processed.scalars.E_ACC.UID = [];
+processed.scalars.E_DECC.UID = [];
+processed.scalars.E_UNAFFECTED.UID = [];
+processed.scalars.E_UNAFFECTED2.UID = [];
+processed.scalars.E_EMIN.UID = [];
+processed.scalars.E_EMIN_ind.UID = [];
+processed.scalars.E_EMAX.UID = [];
+processed.scalars.E_EMAX2.UID = [];
+processed.scalars.E_EMAX3.UID = [];
+processed.scalars.E_EMAX_ind.UID = [];
+processed.scalars.E_EMAX2_ind.UID = [];
+processed.scalars.E_EMAX3_ind.UID = [];
+
+processed.scalars.PYRO.UID = [];
+processed.scalars.EX_CHARGE.UID = [];
+
+processed.vectors.CEGAIN_SPEC.UID = [];
+processed.vectors.CEGAIN_SPEC2.UID = [];
+processed.vectors.CELOSS_SPEC.UID = [];
 
 clear waterfall;
 waterfall.CEGAIN = zeros(1392, n_shot, n_step);
@@ -137,9 +168,8 @@ pid = [data.epics_data.PATT_SYS1_1_PULSEID];
 [C, IA, IB] = intersect(BETAL.pid, pid', 'stable');
 USTORO = E200_state.SIOC_SYS1_ML01_AO028 + E200_state.SIOC_SYS1_ML01_AO027*[data.epics_data.GADC0_LI20_EX01_AI_CH2_];
 DSTORO = E200_state.SIOC_SYS1_ML01_AO030 + E200_state.SIOC_SYS1_ML01_AO029*[data.epics_data.GADC0_LI20_EX01_AI_CH3_];
-processed.scalars.EX_CHARGE(i,:) = 1.6e-7*(DSTORO(IB) - USTORO(IB));
 PYRO = [data.epics_data.BLEN_LI20_3014_BRAW];
-processed.scalars.PYRO(i,:) = PYRO(IB);
+
 
 for j=1:n_shot
     fprintf('\n%d \t %d \t %d\n', BETAL.pid(j), CEGAIN.pid(j), CELOSS.pid(j));
@@ -148,29 +178,55 @@ for j=1:n_shot
     [CEGAIN.ana, CEGAIN.ana.img] = Ana_CEGAIN_img(E_EGAIN, CEGAIN.img(:,:,j));
     CELOSS.ana = Ana_CELOSS_img(E_ELOSS, CELOSS.img(:,:,j));
     
-    processed.scalars.GAMMA_MAX(i,j) = BETAL.ana.GAMMA_MAX;
-    processed.scalars.GAMMA_YIELD(i,j) = BETAL.ana.GAMMA_YIELD;
-    processed.scalars.GAMMA_DIV(i,j) = BETAL.ana.GAMMA_DIV;
-    processed.scalars.E_ACC(i,j) = CEGAIN.ana.E_ACC;
-    processed.scalars.E_UNAFFECTED(i,j) = CEGAIN.ana.E_UNAFFECTED;
-    processed.scalars.E_EMAX(i,j) = CEGAIN.ana.E_EMAX;
-    processed.scalars.E_EMAX2(i,j) = CEGAIN.ana.E_EMAX2;
-    processed.scalars.E_EMAX3(i,j) = CEGAIN.ana.E_EMAX3;
-    processed.scalars.E_EMAX_ind(i,j) = CEGAIN.ana.E_EMAX_ind;
-    processed.scalars.E_EMAX2_ind(i,j) = CEGAIN.ana.E_EMAX2_ind;
-    processed.scalars.E_EMAX3_ind(i,j) = CEGAIN.ana.E_EMAX3_ind;
-    processed.scalars.E_DECC(i,j) = CELOSS.ana.E_DECC;
-    processed.scalars.E_UNAFFECTED2(i,j) = CELOSS.ana.E_UNAFFECTED2;
-    processed.scalars.E_EMIN(i,j) = CELOSS.ana.E_EMIN;
-    processed.scalars.E_EMIN_ind(i,j) = CELOSS.ana.E_EMIN_ind;
+    processed.scalars.GAMMA_MAX.dat(end+1) = BETAL.ana.GAMMA_MAX;
+    processed.scalars.GAMMA_YIELD.dat(end+1) = BETAL.ana.GAMMA_YIELD;
+    processed.scalars.GAMMA_DIV.dat(end+1) = BETAL.ana.GAMMA_DIV;
+    processed.scalars.E_ACC.dat(end+1) = CEGAIN.ana.E_ACC;
+    processed.scalars.E_UNAFFECTED.dat(end+1) = CEGAIN.ana.E_UNAFFECTED;
+    processed.scalars.E_EMAX.dat(end+1) = CEGAIN.ana.E_EMAX;
+    processed.scalars.E_EMAX2.dat(end+1) = CEGAIN.ana.E_EMAX2;
+    processed.scalars.E_EMAX3.dat(end+1) = CEGAIN.ana.E_EMAX3;
+    processed.scalars.E_EMAX_ind.dat(end+1) = CEGAIN.ana.E_EMAX_ind;
+    processed.scalars.E_EMAX2_ind.dat(end+1) = CEGAIN.ana.E_EMAX2_ind;
+    processed.scalars.E_EMAX3_ind.dat(end+1) = CEGAIN.ana.E_EMAX3_ind;
+    processed.scalars.E_DECC.dat(end+1) = CELOSS.ana.E_DECC;
+    processed.scalars.E_UNAFFECTED2.dat(end+1) = CELOSS.ana.E_UNAFFECTED2;
+    processed.scalars.E_EMIN.dat(end+1) = CELOSS.ana.E_EMIN;
+    processed.scalars.E_EMIN_ind.dat(end+1) = CELOSS.ana.E_EMIN_ind;    
     
-    processed.vectors.CEGAIN_SPEC = CEGAIN.ana.spec;
-    processed.vectors.CEGAIN_SPEC2 = CEGAIN.ana.spec2;
-    processed.vectors.CELOSS_SPEC = sum(CELOSS.img(:,:,j),1);
+    processed.scalars.EX_CHARGE.dat(end+1) = 1.6e-7*(DSTORO(IB(j)) - USTORO(IB(j)));
+    processed.scalars.PYRO.dat(end+1) = PYRO(IB(j));
+
+    processed.vectors.CEGAIN_SPEC.dat{end+1} = CEGAIN.ana.spec;
+    processed.vectors.CEGAIN_SPEC2.dat{end+1} = CEGAIN.ana.spec2;
+    processed.vectors.CELOSS_SPEC.dat{end+1} = sum(CELOSS.img(:,:,j),1);
+
+    processed.scalars.GAMMA_MAX.UID(end+1) = getUID(data_set_num, i, BETAL.pid(j), pid);
+    processed.scalars.GAMMA_YIELD.UID(end+1) = getUID(data_set_num, i, BETAL.pid(j), pid);
+    processed.scalars.GAMMA_DIV.UID(end+1) = getUID(data_set_num, i, BETAL.pid(j), pid);
+    processed.scalars.E_ACC.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_UNAFFECTED.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX2.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX3.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX_ind.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX2_ind.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_EMAX3_ind.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.scalars.E_DECC.UID(end+1) = getUID(data_set_num, i, CELOSS.pid(j), pid);
+    processed.scalars.E_UNAFFECTED2.UID(end+1) = getUID(data_set_num, i, CELOSS.pid(j), pid);
+    processed.scalars.E_EMIN.UID(end+1) = getUID(data_set_num, i, CELOSS.pid(j), pid);
+    processed.scalars.E_EMIN_ind.UID(end+1) = getUID(data_set_num, i, CELOSS.pid(j), pid);
     
-    waterfall.CEGAIN(:,j,i) = processed.vectors.CEGAIN_SPEC;
-    waterfall.CEGAIN2(:,j,i) = processed.vectors.CEGAIN_SPEC2;
-    waterfall.CELOSS(:,j,i) = processed.vectors.CELOSS_SPEC;
+    processed.scalars.EX_CHARGE.UID(end+1) = getUID(data_set_num, i, pid(IB(j)), pid);
+    processed.scalars.PYRO.UID(end+1) = getUID(data_set_num, i, pid(IB(j)), pid);
+    
+    processed.vectors.CEGAIN_SPEC.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.vectors.CEGAIN_SPEC2.UID(end+1) = getUID(data_set_num, i, CEGAIN.pid(j), pid);
+    processed.vectors.CELOSS_SPEC.UID(end+1) = getUID(data_set_num, i, CELOSS.pid(j), pid);
+
+    waterfall.CEGAIN(:,j,i) = processed.vectors.CEGAIN_SPEC.dat{end};
+    waterfall.CEGAIN2(:,j,i) = processed.vectors.CEGAIN_SPEC2.dat{end};
+    waterfall.CELOSS(:,j,i) = processed.vectors.CELOSS_SPEC.dat{end};
     
     CEGAIN.ana.img(CEGAIN.ana.img<1) = 1;
     CEGAIN.img2 = CEGAIN.img(:,:,j);
