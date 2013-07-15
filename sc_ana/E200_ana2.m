@@ -1,24 +1,40 @@
 
-% Script to analyze E200 2013 data with the original data structure.
+% Script to analyze E200 2013 data with the new processed data structure.
 
 % Sebastien Corde
 % Create: May 6, 2013
 % Last edit: June 7, 2013
 
 %%
-addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/facet_daq/');
-addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/sc_ana/');
-addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/tools/');
-addpath('~/Dropbox/SeB/Codes/sources/E200_data/');
+addpath(genpath('~/Dropbox/SeB/Codes/sources/E200_scripts'));
+addpath('~/Dropbox/SeB/Codes/sources/E200_data');
 
+user = 'corde';
+is_ana_local = 0;
+local_data = '~/test/saved.mat';
 prefix = '/Volumes/PWFA_4big';
 day = '20130428';
 experiment = 'E200';
-data_set_num = 10850;
+data_set_num = 10849;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 data_set = [experiment '_' num2str(data_set_num)];
 
+
+%%
+
+if is_ana_local
+    load(local_data);
+else
+    if exist(prefix)
+        data = E200_load_data([prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/']);
+    else
+        system(['mkdir ' prefix]);
+        system(['/usr/local/bin/sshfs ' user '@quickpicmac3.slac.stanford.edu:' prefix ' ' prefix]);
+        data = E200_load_data([prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/']);
+        data = E200_gather_data([prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/']);
+    end
+end
 
 %%
 
@@ -28,40 +44,23 @@ BETAL_caxis = [0 1000];
 CEGAIN_caxis = [0.8 3.2];
 CELOSS_caxis = [0.8 3.2];
 
-
-path = [prefix '/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/'];
 if(~exist([save_path data_set], 'dir')); mkdir([save_path data_set '/frames/']); end;
 
+is_scan = isfield(data.raw.metadata, 'scan_info');
+n_step = data.raw.scalars.step_num.dat(end);
+n_shot = data.raw.metadata.param.dat{1}.n_shot;
 
-scan_info_file = dir([path '*scan_info*']);
-if size(scan_info_file,1) == 1
-    load([path scan_info_file.name]);
-    n_step = size(scan_info,2);
-    is_qsbend_scan = strcmp(scan_info(1).Control_PV_name, 'set_QSBEND_energy');
-    is_qs_scan = strcmp(scan_info(1).Control_PV_name, 'set_QS_energy');
-    is_scan = 1;
-elseif size(scan_info_file,1) == 0
-    filenames_file = dir([path data_set '*_filenames.mat']);
-    load([path filenames_file.name]);
-    scan_info = filenames;
-    n_step = 1;
-    is_qsbend_scan = 0;
-    is_qs_scan = 0;
-    is_scan = 0;
-else
-    error('There are more than 1 scan info file.');
+is_qsbend_scan = 0;
+is_qs_scan = 0;
+if is_scan
+    is_qsbend_scan = strcmp(data.raw.metadata.scan_info.dat{1}.Control_PV_name, 'set_QSBEND_energy');
+    is_qs_scan = strcmp(data.raw.metadata.scan_info.dat{1}.Control_PV_name, 'set_QS_energy');
 end
 
 
-
-
-
-list = dir([path data_set '_2013*.mat']);
-mat_filenames = {list.name};
-mat_filenames = {mat_filenames{1:2:end}};
-load([path mat_filenames{1}]);
-n_shot = param.n_shot;
-
+cam_back.BETAL.img = load(data.raw.images.BETAL.background_dat{1});
+cam_back.CEGAIN.img = load(data.raw.images.CEGAIN.background_dat{1});
+cam_back.CELOSS.img = load(data.raw.images.CELOSS.background_dat{1});
 
 BETAL = cam_back.BETAL;
 CEGAIN = cam_back.CEGAIN;
