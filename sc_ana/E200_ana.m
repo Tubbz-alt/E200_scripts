@@ -12,9 +12,9 @@ addpath('~/Dropbox/SeB/Codes/sources/E200_scripts/tools/');
 addpath('~/Dropbox/SeB/Codes/sources/E200_data/');
 
 prefix = '/Volumes/PWFA_4big';
-day = '20130428';
+day = '20130430';
 experiment = 'E200';
-data_set_num = 10850;
+data_set_num = 10991;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 data_set = [experiment '_' num2str(data_set_num)];
