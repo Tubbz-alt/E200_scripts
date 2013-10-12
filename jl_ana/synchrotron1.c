@@ -22,7 +22,8 @@ double* tab_F;
 double* tab_logF;
 
 FILE* fp;
-fp= fopen("/home/jacques/Bureau/Synchrotron1.txt","w");
+//fp= fopen("/home/jacques/Bureau/synchrotron1.txt","w");
+fp= fopen("/Users/scorde/Dropbox/SeB/Codes/sources/E200_scripts/jl_ana/synchrotron1bis.txt","w");
 if(fp==NULL){
 	printf("invalid path"); 
 	return 0;}

@@ -1,6 +1,6 @@
-function [Res]=energy_fit(y,S_BETA1, S_BETA2, S_BETAL, Synchro_ref,Lanex_ref, Nist_ref,pick,K_B1L,K_B2L)
+function [Res] = energy_fit_1(z, S_exp, pick, sextufilter)
 %% Fit function for the critical energy
-%%% - "y" is the fitted critical energy
+%%% - "Ec" is the fitted critical energy
 %%% - "S_BETA1/2/L" are the measurements of the betatron signal on the
 %%%    respective cameras
 %%% - "Synchro/Lanex/Nist_ref/" and "pick" are needed for Gamma_num, see
@@ -11,10 +11,16 @@ function [Res]=energy_fit(y,S_BETA1, S_BETA2, S_BETAL, Synchro_ref,Lanex_ref, Ni
 %%% difference between the simulated value and the measured value of signal
 %%% on each selected filter (and camera). 
 
+Ec = z(1);
+k1 = z(2);
+% k2 = z(3);
+k2 = 0.97;
 
-S_ratio_tot(:,1:7)=S_BETA1*interp1(logspace(-1,3,200), K_B1L, y)./S_BETAL;
-S_ratio_tot(:,8:14)=S_BETA2*interp1(logspace(-1,3,200), K_B2L, y)./S_BETAL;
-S=Gamma_num(y, 200, Synchro_ref, Lanex_ref, Nist_ref, S_ratio_tot, pick,1);
+S_exp = [k1*S_exp(1:7) k2*S_exp(8:14)];
+S_sim = interp1(sextufilter.Ec, sextufilter.S_sim, Ec);
 
-%Res=rms(S,2);
+Res = sqrt(sum((S_exp(pick) - S_sim(pick)).^2)/size(pick,2));
+
 end
+
+

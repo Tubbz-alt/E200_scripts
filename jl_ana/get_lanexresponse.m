@@ -1,4 +1,4 @@
-%% Script to get the Lanex Response data simulations.  
+function Lanex_ref = get_lanexresponse()%% Script to get the Lanex Response data simulations.  
 %%% Needs the data stored by default in a R_Lanex_Response directory 
 %%% Two versions are available for the Copper 10. Default is 2*2mm^2.
 %%% 10*10mm^2 was used to try to adjust the simulation to inadequate experimental
@@ -20,42 +20,33 @@
 %     
 % 
 %%
-path_lanex = 'C:/Users/Jacques/Desktop/PRE/R_lanex_response/';
+path_lanex = '~/Dropbox/SeB/Postdoc/Projects/BetaRad/scintillator_sim/lanex_sextufilter/';
 
-Lanex_ref=load([path_lanex 'lanex_regular_response_Cu1mm_2x2mm2.txt']);
+Lanex_ref=load([path_lanex 'lanex_regular_response_Cu1mm_10x10mm2.txt']);
 
 Lanex_ref(:,5)=[]; Lanex_ref(:,2:3)=[];
 
-tmp=load([path_lanex 'lanex_regular_response_Cu3mm_2x2mm2.txt']);
+tmp=load([path_lanex 'lanex_regular_response_Cu3mm_10x10mm2.txt']);
 Lanex_ref(:,3)=tmp(:,4);
 clear tmp;
 
-tmp=load([path_lanex 'lanex_regular_response_Cu10mm_2x2mm2.txt']);
+tmp=load([path_lanex 'lanex_regular_response_Cu10mm_10x10mm2.txt']);
 Lanex_ref(:,4)=tmp(:,4);
 clear tmp;
-
-% tmp=load([Lanex_path 'lanex_regular_response_Cu10mm_2x2mm2.txt']);
-% Lanex_ref(:,4)=tmp(:,4);
-% clear tmp;
-
 
 tmp=load([path_lanex 'lanex_regular_response_W90-3mm_10x10mm2.txt']);
 Lanex_ref(:,5)=tmp(:,4);
 clear tmp;
 
-% tmp=load([path_lanex 'lanex_regular_response_W3mm_2x2mm2.txt']);
-% Lanex_ref(:,5)=tmp(:,4);
-% clear tmp;
-
-tmp=load([path_lanex 'lanex_regular_response_W1mm_2x2mm2.txt']);
+tmp=load([path_lanex 'lanex_regular_response_W1mm_10x10mm2.txt']);
 Lanex_ref(:,6)=tmp(:,4);
 clear tmp;
 
-tmp=load([path_lanex 'lanex_regular_response_Cu300um_2x2mm2.txt']);
+tmp=load([path_lanex 'lanex_regular_response_Cu300um_10x10mm2.txt']);
 Lanex_ref(:,7)=tmp(:,4);
 clear tmp;
 
-tmp=load([path_lanex '/lanex_regular_response_no-converter_2x2mm2.txt']);
+tmp=load([path_lanex '/lanex_regular_response_no-converter_10x10mm2.txt']);
 Lanex_ref(:,8)=tmp(:,4);
 clear tmp;
 

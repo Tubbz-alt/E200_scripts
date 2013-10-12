@@ -4,15 +4,15 @@
 % Includes a new calibration of the BETA1 cam compatible with the 20130423 datas 
 
 %%
-addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/facet_daq/');
-addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/sc_ana/');
-addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/tools/');
+% addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/facet_daq/');
+% addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/sc_ana/');
+% addpath('C:/Users/Jacques/Desktop/PRE/Matlab/E200_scripts/tools/');
 
-prefix = 'C:/Users/Jacques/Desktop/PRE/Volumes/PWFA_4big';
+prefix = '/Volumes/PWFA_4big';
 day = '20130430';
 data_set = 'E200_11004';
 do_save = 1;
-save_path =['C:/Users/Jacques/Desktop/PRE/Saves/2013_E200_Data_Analysis/' day '/'];
+save_path = ['~/Dropbox/SeB/PostDoc/Projects/2013_E200_Data_Analysis/' day '/'];
 
 
 %%
@@ -35,12 +35,10 @@ if size(scan_info_file,1) == 1
     n_step = size(scan_info,2);
     is_qsbend_scan = strcmp(scan_info(1).Control_PV_name, 'set_QSBEND_energy');
     is_qs_scan = strcmp(scan_info(1).Control_PV_name, 'set_QS_energy');
-    is_scan = 1;
-        
- %%%%%%%%%% Modified the routine to get the scan informations to make it
- %%%%%%%%%% compatible with older datasets 
-    
-elseif ( size(scan_info_file,1) == 0 || day <= 20130423 )
+    is_scan = 1;    
+    %%%%%%%%%% Modified the routine to get the scan informations to make it
+    %%%%%%%%%% compatible with older datasets
+elseif ( size(scan_info_file,1) == 0 && str2num(day) <= 20130423 )
     list = dir([path data_set '*BETAL*.header']);
     scan_info.BETAL = strtok(['/nas/nas-li20-pm01/E200/2013/' day '/' data_set '/' list.name],'.');
     list = dir([path data_set '*BETA1*.header']);
@@ -58,16 +56,14 @@ elseif ( size(scan_info_file,1) == 0 || day <= 20130423 )
     is_qsbend_scan = 0;
     is_qs_scan = 0;
     is_scan = 0;
-    
-elseif (size(scan_info_file,1) == 0 || day > 20130423 )
+elseif (size(scan_info_file,1) == 0 && str2num(day) > 20130423 )
     filenames_file = dir([path data_set '*_filenames.mat']);
     load([path filenames_file.name]);
-    scan_info = filenames    
+    scan_info = filenames;
     n_step = 1;
     is_qsbend_scan = 0;
     is_qs_scan = 0;
-    is_scan = 0;
-    
+    is_scan = 0;   
 else
     error('There are more than 1 scan info file.');
 end
@@ -77,10 +73,8 @@ end
 
 list = dir([path data_set '_2013*.mat']);
 mat_filenames = {list.name};
-if(day > 20130423)
-    mat_filenames = {mat_filenames{1:2:end}};
-end
-    
+if str2num(day)>20130423; mat_filenames = {mat_filenames{1:2:end}}; end;
+
 load([path mat_filenames{1}]);
 n_shot = param.n_shot;
 %%
@@ -193,7 +187,7 @@ PYRO = [data.epics_data.BLEN_LI20_3014_BRAW];
 processed.scalars.PYRO(i,:) = PYRO(IB);
 
 for j=1:n_shot
-    fprintf('\n%d \t %d \t %d\n', BETAL.pid(j), BETA1.pid(j), CEGAIN.pid(j), CELOSS.pid(j));
+    fprintf('\n%d \t %d \t %d \t %d\n', BETAL.pid(j), BETA1.pid(j), CEGAIN.pid(j), CELOSS.pid(j));
     
     [BETAL.img2, BETAL.ana.img, BETAL.ana.GAMMA_YIELD, BETAL.ana.GAMMA_MAX, BETAL.ana.GAMMA_DIV] = Ana_BETAL_img(BETAL.xx, BETAL.yy, BETAL.img(:,:,j));
     [BETA1.img2, BETA1.ana.img, BETA1.ana.GAMMA_YIELD, BETA1.ana.GAMMA_MAX, BETA1.ana.GAMMA_DIV, BETA1.ana.xx, BETA1.ana.yy] = Ana_BETA1_img(BETA1.xx, BETA1.yy, BETA1.img(:,:,j));

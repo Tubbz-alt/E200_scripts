@@ -1,9 +1,6 @@
-%% This script calculates S_num, K_B1L and K_B2L. 
-%%% Use this to calculate and save those matrices for quicker use in E200_Energy_Scan
-%%% 
-%%% S_num is the numerical simulation of the signal on each filter for various 
-%%% critical energies using the convention S_num(:,1:7) for BETA1/BETAL and
-%%% S_num(:,8:14) for BETA2/BETAL. 
+%% This script calculates K_B1L and K_B2L. 
+%%% Use this to calculate and save those matrices for quicker use in
+%%% E200_Gamma_Ec_Fit
 %%% 
 %%% K_B1L is the ratio of the number of counts per pixel on BETA1 over the
 %%% one on BETAL as fit for various critical energies. K_B2L is the same
@@ -12,18 +9,8 @@
 %%% dataset and then averaged on all shots to get one mean value for each
 %%% critical energy.  
 
-y=logspace(-1,3,200);
+Ec = logspace(-2,4,500);
 
-
-%% S_num
-for k=1:14
-for m=1:200;
-    
-    S_num(m,k)= Gamma_num(y(m), 300, Synchro_ref, Lanex_ref, Nist_ref, zeros(1,14), k );
-end
-end
-
-S_num(:,15:21)=S_num(:,8:14)./S_num(:,1:7);
 
 
 %% Shot selection
