@@ -31,6 +31,16 @@ G=linspace(0,1,256);
 cmap.bwr=interp1(F,D,G);
 
 
+% modified jet with white at low values
+D = [1 1 1;
+     0 0 1;
+     0 1 1;
+     1 1 0;
+     1 0 0;
+     0.5 0 0;];
+F = [0 0.20 0.35 0.50 0.80 1];
+G = linspace(0, 1, 256);
+cmap.mjet = interp1(F,D,G);
 
 
 end
