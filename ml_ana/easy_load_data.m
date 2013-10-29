@@ -30,12 +30,13 @@ end
 year=num2str(year);
 month=num2str(month,'%02.f');
 day=num2str(day,'%02.f');
+datasetnum=num2str(datasetnum);
 experiment = 'E200';
 
 % define the path components
 nas_path   = 'nas/nas-li20-pm01/';
 ymd        = [year month day];
-dataset    = [experiment '_' num2str(datasetnum)];
+dataset    = [experiment '_' datasetnum];
 % define the full path filename
 full_filename  = fullfile(nas_path,experiment,year,ymd,dataset);
 
