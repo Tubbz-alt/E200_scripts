@@ -1,6 +1,6 @@
 %% E200_get_date
 %  function to get the date in various formats from
-%  the main data struct
+%  the main data struct. Returns a string value.
 function [ data_date ] = E200_get_date( data, format )
 
 % read in date from filename
