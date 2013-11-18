@@ -1,4 +1,4 @@
-%% E200_get_ana_roi
+%% E200_get_preproc_val
 %  Function to retrive vignetting correction matrix
 %  for CEGAIN or CELOSS. The matrix can then be multiplied
 %  with the original image from the camera to correct for 
@@ -15,17 +15,19 @@
 %              'overwrite' - create from scratch and save to disk,
 %                        saving over previous value if there
 %
-%  NOTE: full size for UNIQ: 1040x1392
-%  NOTE: full size for CMOS: 2159x2559
+%  NOTE: WORK IN PROGRESS!!!!
 %
 % M.Litos 11/4/2013
-function [ data, ana_roi_x, ana_roi_y ] = E200_get_template( data, cam_name, val_name, readwrite )
+function [ data, ana_roi_x, ana_roi_y ] = ...
+    E200_get_preproc_val( data, cam_name, val_name, readwrite )
 
 % default: don't save to remote disk
 if nargin<4
     readwrite='read';
 end
 
+
+if strcmpi(val_name,'ana_roi_x')
 
 val_names{1}='ana_roi_x';
 val_names{2}='ana_roi_y';
@@ -42,6 +44,8 @@ end
 
 % create analysis ROIs
 if ~(in_data) || strcmpi(readwrite,'overwrite')
+    
+    
     % get full size
     size_x = data.raw.images.(cam_name).ROI_XNP(1);
     size_y = data.raw.images.(cam_name).ROI_YNP(1);
@@ -71,6 +75,25 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
     % add to data struct
     data.processed.vectors.(cam_name).preproc.ana_roi_x = ana_roi_x;
     data.processed.vectors.(cam_name).preproc.ana_roi_y = ana_roi_y;
+    
+    
+    % add to data struct
+    ana_name='preproc';
+    ishot=1;
+    uid=1;
+    dat=var;
+    dat_name=var_name;
+    
+    E200_add_proc_vector(data,cam_name,ana_name,ishot,uid,...
+                                         dat,dat_name,units,desc)
+    
+    
+    if length(val)>1 || ischar(val)
+        data.processed.vectors.(cam_name).preproc.(val_names{i}) = val{i};
+    else
+        data.processed.vectors.(cam_name).preproc.(val_names(i)) = val(i);
+    end
+    
 end
 
 % save data struct to disk

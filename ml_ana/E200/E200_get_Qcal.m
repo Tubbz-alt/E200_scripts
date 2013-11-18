@@ -1,5 +1,5 @@
-%% E200_get_ana_roi
-%  Function to generic analysis ROI values for any camera.
+%% E200_get_Qcal
+%  Function to get pixel count to charge calibration.
 %
 %  inputs-->
 %  data      : struct; main data struct from E200_load_data
@@ -12,12 +12,9 @@
 %              'overwrite' - create from scratch and save to disk,
 %                        saving over previous value if there
 %
-%  NOTE: full size for UNIQ: 1040x1392
-%  NOTE: full size for CMOS: 2159x2559
-%
 % M.Litos 11/4/2013
-function [ data, ana_roi_x, ana_roi_y ] = ...
-    E200_get_ana_roi( data, cam_name, readwrite )
+function [ data, cnt2e, cnt2nC ] = ...
+    E200_get_Qcal( data, cam_name, readwrite )
 
 % default: don't save to remote disk
 if nargin<3
@@ -28,53 +25,47 @@ end
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
     if isfield(data.processed.vectors.(cam_name),'preproc')
-        if isfield(data.processed.vectors.(cam_name).preproc,'ana_roi_x') && ...
-                isfield(data.processed.vectors.(cam_name).preproc,'ana_roi_y')
+        if isfield(data.processed.vectors.(cam_name).preproc,'cnt2e') && ...
+                isfield(data.processed.vectors.(cam_name).preproc,'cnt2nC')
             in_data=true;
             
-            ana_roi_x = cell2mat(data.processed.vectors.(cam_name).preproc.ana_roi_x.dat(1));
-            ana_roi_y = cell2mat(data.processed.vectors.(cam_name).preproc.ana_roi_y.dat(1));
+            cnt2e  = data.processed.vectors.(cam_name).preproc.cnt2e.dat(1);
+            cnt2nC = data.processed.vectors.(cam_name).preproc.cnt2nC.dat(1);
             
         end
-    end    
+    end
 end
 
-% create analysis ROIs
+% create energy calibration
 if ~(in_data) || strcmpi(readwrite,'overwrite')
-    % get full size
-    size_x = data.raw.images.(cam_name).ROI_XNP(1);
-    size_y = data.raw.images.(cam_name).ROI_YNP(1);
+    % charge of electron in nC
+    qenC = (1.602e-19)/(1.0e-9);
     % check date
     ymd = E200_get_date(data,'ymd');
     
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         if strcmpi(cam_name,'CEGAIN')
-            ana_roi_x = [  51  550];
-            ana_roi_y = [  51  750];
-        elseif strcmpi(cam_name,'CELOSS')
-            ana_roi_x = [ 601 1392];
-            ana_roi_y = [ 101  800];
+            cnt2e = 1./(2.1913e-03); % for 6/29/2013
+        elseif strcmpi(cam_name,'CELOSS')            
+            cnt2e = 1./(2.6654e-03); % for 6/29/2013
         elseif strcmpi(cam_name,'CMOS')
-            ana_roi_x = [1001 2400];
-            ana_roi_y = [ 821 1330];
-        else
-            ana_roi_x = [1 size_x];
-            ana_roi_y = [1 size_y];
-        end
-    % default: full size
+            cnt2e = 1;
+    % default: 1
     else
-        ana_roi_x = [1 size_x];
-        ana_roi_x = [1 size_y];
+        cnt2e = 1;
     end
+    
+    % calculate charge conversion in nC
+    cnt2nC = qenC*cnt2e;
     
     % add to data struct
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
-        ana_roi_x,'ana_roi_x','',...
-        'Analysis ROI along x.');
+        cnt2e,'cnt2e','electrons',...
+        'Calibration factor for electrons per camera pixel count.');
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
-        ana_roi_y,'ana_roi_y','',...
-        'Analysis ROI along y.');
+        cnt2nC,'cnt2nC','nC',...
+        'Calibration factor for nC per camera pixel count.');
 end
 
 % save data struct to disk

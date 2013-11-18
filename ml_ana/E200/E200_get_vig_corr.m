@@ -27,10 +27,17 @@ end
 % check if values already exists in the data struct
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
-    if isfield(data.processed.vectors.(cam_name).preproc,'vig_corr_x') && ...
-       isfield(data.processed.vectors.(cam_name).preproc,'vig_corr_y') && ...
-       isfield(data.processed.vectors.(cam_name).preproc,'vig_corr')
-        in_data=true;
+    if isfield(data.processed.vectors.(cam_name),'preproc')
+        if isfield(data.processed.vectors.(cam_name).preproc,'vig_corr_x') && ...
+                isfield(data.processed.vectors.(cam_name).preproc,'vig_corr_y') && ...
+                isfield(data.processed.vectors.(cam_name).preproc,'vig_corr')
+            in_data=true;
+            
+            vig_corr_x = cell2mat(data.processed.vectors.(cam_name).preproc.vig_corr_x.dat(1));
+            vig_corr_y = cell2mat(data.processed.vectors.(cam_name).preproc.vig_corr_y.dat(1));
+            vig_corr   = cell2mat(data.processed.vectors.(cam_name).preproc.vig_corr.dat(1));
+            
+        end
     end
 end
 
@@ -41,6 +48,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
     size_y = data.raw.images.(cam_name).ROI_YNP(1);
     % check date
     ymd = E200_get_date(data,'ymd');
+    
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         % get x-axis vignetting correction
@@ -54,17 +62,24 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         % no y-axis vignetting correction
         vig_corr_y = ones(1,size_y);
         % make full matrix using x-axis vignetting correction
-        vig_corr   = repmat(data.processed.vectors.(cam_name).preproc.vig_corr_x,size_y,1);
+        vig_corr   = repmat(vig_corr_x,size_y,1);
     % default: 1
     else
         vig_corr_x = 1;
         vig_corr_y = 1;
         vig_corr   = 1;
     end
+    
     % add to data struct
-    data.processed.vectors.(cam_name).preproc.vig_corr_x = vig_corr_x;
-    data.processed.vectors.(cam_name).preproc.vig_corr_y = vig_corr_y;
-    data.processed.vectors.(cam_name).preproc.vig_corr   = vig_corr;    
+    data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
+        vig_corr_x,'vig_corr_x','',...
+        'Vignetting correction factor along x.');
+    data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
+        vig_corr_x,'vig_corr_y','',...
+        'Vignetting correction factor along y.');
+    data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
+        vig_corr,'vig_corr','',...
+        'Vignetting correction factor matrix.');
 end
 
 % save data struct to disk
