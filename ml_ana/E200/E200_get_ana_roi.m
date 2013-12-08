@@ -24,7 +24,7 @@ if nargin<3
     readwrite='read';
 end
 
-% check if values already exist in the data struct
+%% check if values already exist in the data struct
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
     if isfield(data.processed.vectors.(cam_name),'preproc')
@@ -39,7 +39,7 @@ if isfield(data.processed.vectors,cam_name)
     end    
 end
 
-% create analysis ROIs
+%% create analysis ROIs
 if ~(in_data) || strcmpi(readwrite,'overwrite')
     % get full size
     size_x = data.raw.images.(cam_name).ROI_XNP(1);
@@ -47,6 +47,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
     % check date
     ymd = E200_get_date(data,'ymd');
     
+    % --------------------------------
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         if strcmpi(cam_name,'CEGAIN')
@@ -62,13 +63,27 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
             ana_roi_x = [1 size_x];
             ana_roi_y = [1 size_y];
         end
+        
+%     % --------------------------------
+%     % FACET User Run 3
+%     % Nov. 11, 2013 - long. tomography scan
+%     elseif str2double(ymd)==20131111
+%         if strcmpi(cam_name,'IP2A')
+%             ana_roi_x = [  51  550];
+%             ana_roi_y = [  51  751];
+%         else
+%             ana_roi_x = [1 size_x];
+%             ana_roi_y = [1 size_y];
+%         end
+        
+    % --------------------------------
     % default: full size
     else
         ana_roi_x = [1 size_x];
-        ana_roi_x = [1 size_y];
+        ana_roi_y = [1 size_y];
     end
     
-    % add to data struct
+    %% add to data struct
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
         ana_roi_x,'ana_roi_x','',...
         'Analysis ROI along x.');
@@ -77,7 +92,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         'Analysis ROI along y.');
 end
 
-% save data struct to disk
+%% save data struct to disk
 if  strcmpi(readwrite,'overwrite') || ...
    (strcmpi(readwrite,'write') && ~(in_data))
     E200_save_remote(data);

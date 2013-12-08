@@ -24,7 +24,7 @@ if nargin<3
     readwrite='read';
 end
 
-% check if values already exists in the data struct
+%% check if values already exists in the data struct
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
     if isfield(data.processed.vectors.(cam_name),'preproc')
@@ -41,7 +41,7 @@ if isfield(data.processed.vectors,cam_name)
     end
 end
 
-% create vignetting correction
+%% create vignetting correction
 if ~(in_data) || strcmpi(readwrite,'overwrite')
     % get full size
     size_x = data.raw.images.(cam_name).ROI_XNP(1);
@@ -49,6 +49,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
     % check date
     ymd = E200_get_date(data,'ymd');
     
+    % --------------------------------
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         % get x-axis vignetting correction
@@ -61,16 +62,18 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         end
         % no y-axis vignetting correction
         vig_corr_y = ones(1,size_y);
-        % make full matrix using x-axis vignetting correction
-        vig_corr   = repmat(vig_corr_x,size_y,1);
+        
+    % --------------------------------
     % default: 1
     else
-        vig_corr_x = 1;
-        vig_corr_y = 1;
-        vig_corr   = 1;
-    end
+        vig_corr_x = ones(1,size_x);
+        vig_corr_y = ones(1,size_y);
+     end
+
+    % make full matrix using x-axis vignetting correction
+    vig_corr   = repmat(vig_corr_x,size_y,1);
     
-    % add to data struct
+    %% add to data struct
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
         vig_corr_x,'vig_corr_x','',...
         'Vignetting correction factor along x.');
@@ -82,7 +85,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         'Vignetting correction factor matrix.');
 end
 
-% save data struct to disk
+%% save data struct to disk
 if  strcmpi(readwrite,'overwrite') || ...
    (strcmpi(readwrite,'write') && ~(in_data))
     E200_save_remote(data);

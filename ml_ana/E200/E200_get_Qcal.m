@@ -21,7 +21,7 @@ if nargin<3
     readwrite='read';
 end
 
-% check if values already exist in the data struct
+%% check if values already exist in the data struct
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
     if isfield(data.processed.vectors.(cam_name),'preproc')
@@ -36,13 +36,14 @@ if isfield(data.processed.vectors,cam_name)
     end
 end
 
-% create energy calibration
+%% create energy calibration
 if ~(in_data) || strcmpi(readwrite,'overwrite')
     % charge of electron in nC
     qenC = (1.602e-19)/(1.0e-9);
     % check date
     ymd = E200_get_date(data,'ymd');
     
+    % --------------------------------
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         if strcmpi(cam_name,'CEGAIN')
@@ -51,15 +52,21 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
             cnt2e = 1./(2.6654e-03); % for 6/29/2013
         elseif strcmpi(cam_name,'CMOS')
             cnt2e = 1;
+        else
+            cnt2e = 1;
+        end
+            
+    % --------------------------------
     % default: 1
     else
         cnt2e = 1;
     end
     
-    % calculate charge conversion in nC
+    %% calculate charge conversion in nC
+    % (works independent of date)
     cnt2nC = qenC*cnt2e;
     
-    % add to data struct
+    %% add to data struct
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
         cnt2e,'cnt2e','electrons',...
         'Calibration factor for electrons per camera pixel count.');
@@ -68,7 +75,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         'Calibration factor for nC per camera pixel count.');
 end
 
-% save data struct to disk
+%% save data struct to disk
 if  strcmpi(readwrite,'overwrite') || ...
    (strcmpi(readwrite,'write') && ~(in_data))
     E200_save_remote(data);

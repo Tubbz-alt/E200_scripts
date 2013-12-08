@@ -22,7 +22,7 @@ if nargin<3
     readwrite='read';
 end
 
-% check if values already exist in the data struct
+%% check if values already exist in the data struct
 in_data=false;
 if isfield(data.processed.vectors,cam_name)
     if isfield(data.processed.vectors.(cam_name),'preproc')
@@ -37,7 +37,7 @@ if isfield(data.processed.vectors,cam_name)
     end
 end
 
-% create energy calibration
+%% create energy calibration
 if ~(in_data) || strcmpi(readwrite,'overwrite')
     % get full size
     size_x = data.raw.images.(cam_name).ROI_XNP(1);
@@ -45,6 +45,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
     % check date
     ymd = E200_get_date(data,'ymd');
     
+    % --------------------------------
     % FACET User Run 2 end: 2013/07/04
     if str2double(ymd)<=20130704
         
@@ -62,24 +63,27 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
             %         E_GeV = E200_cher_get_E_axis('20130423', cam_name, 0, ...
             %                           1:1392, 0, B5D36);
         else
-            E_GeV = 0;
+            E_GeV = zeros(1,size_x);
             disp('E200_get_Ecal: WARNING: No energy calibration found.');
         end
+        
+    % --------------------------------
     % default: 0
     else
-        E_GeV = 0;
+        E_GeV = zeros(1,size_x);
         disp('E200_get_Ecal: WARNING: No energy calibration found.');
     end
     
-    % calculate deltaE of each pixel row
+    %% calculate deltaE of each pixel row
+    % (works independent of date)
     dE_GeV = zeros(1,length(E_GeV));
     for i=2:length(E_GeV)-1
         dE_GeV(i) = (1/2)*abs(E_GeV(i+1)-E_GeV(i-1));
     end
     dE_GeV(1) = dE_GeV(2);
     dE_GeV(length(E_GeV)) = dE_GeV(length(E_GeV)-1);
-    
-    % add to data struct
+        
+    %% add to data struct
     data = E200_add_proc_vector(data,cam_name,'preproc',1,1,...
         E_GeV,'E_GeV','GeV',...
         'Energy value for each pixel row in GeV.');
@@ -88,7 +92,7 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         'Spread of energy for each pixel row in GeV.');
 end
 
-% save data struct to disk
+%% save data struct to disk
 if  strcmpi(readwrite,'overwrite') || ...
    (strcmpi(readwrite,'write') && ~(in_data))
     E200_save_remote(data);
