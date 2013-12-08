@@ -3,7 +3,7 @@
 %  tomographic scan.
 %
 %  M.Litos 20131206
-function [ tomo_proj, data] = E200_tomographic_scan( )
+function [ tomo_proj ] = E200_tomographic_scan( )
 
 % loop over datasets
 year  = 2013;
