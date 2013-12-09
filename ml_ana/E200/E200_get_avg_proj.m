@@ -73,19 +73,31 @@ for ishot=1:nshot
     
     % center peak using buffers
     if x_pk_ind>length(proj_x)/2
-        proj_x = mlpadarray(proj_x,[0 round(2*abs(x_pk_ind-x_cent))],0,'post');
+%         proj_x = mlpadarray(proj_x,[0 round(2*abs(x_pk_ind-x_cent))],0,'post');
+        pad = zeros(1,round(2*abs(x_pk_ind-x_cent)));
+        proj_x = [proj_x pad];
     else
-        proj_x = mlpadarray(proj_x,[0 round(2*abs(x_pk_ind-x_cent))],0,'pre');
+%         proj_x = mlpadarray(proj_x,[0 round(2*abs(x_pk_ind-x_cent))],0,'pre');
+        pad = zeros(1,round(2*abs(x_pk_ind-x_cent)));
+        proj_x = [pad proj_x];
     end        
     if y_pk_ind>length(proj_y)/2
-        proj_y = mlpadarray(proj_y,[0 round(2*abs(y_pk_ind-y_cent))],0,'post');
+%         proj_y = mlpadarray(proj_y,[0 round(2*abs(y_pk_ind-y_cent))],0,'post');
+        pad = zeros(1,round(2*abs(y_pk_ind-y_cent)));
+        proj_y = [pad proj_y];
     else
-        proj_y = mlpadarray(proj_y,[0 round(2*abs(y_pk_ind-y_cent))],0,'pre');
+%         proj_y = mlpadarray(proj_y,[0 round(2*abs(y_pk_ind-y_cent))],0,'pre');
+        pad = zeros(1,round(2*abs(y_pk_ind-y_cent)));
+        proj_y = [proj_y pad];
     end        
     
     % buffer more so that all images reach same uniform size
-    proj_x = mlpadarray(proj_x,[0 round((full_size_x-length(proj_x))/2)]);
-    proj_y = mlpadarray(proj_y,[0 round((full_size_y-length(proj_y))/2)]);
+%     proj_x = mlpadarray(proj_x,[0 round((full_size_x-length(proj_x))/2)]);
+    pad = zeros(1,round((full_size_x-length(proj_x))/2));
+    proj_x = [pad proj_x pad];
+%     proj_y = mlpadarray(proj_y,[0 round((full_size_y-length(proj_y))/2)]);
+    pad = zeros(1,round((full_size_y-length(proj_y))/2));
+    proj_y = [pad proj_y pad];
     
     % fine adjust length if off by one or two bins
     while length(proj_x)<full_size_x
