@@ -11,14 +11,15 @@
 %  dat_name: string; the name of the data being stored
 %  units: string; units of the data being stored
 %  desc: string; description of the data being stored
+%  step_num: integer; step number of scan (optional)
 %
 %  Final data structure format:
 %  data.processed.vectors.cam_name.ana_name.dat_name.[UID, dat, units,
-%  description]
+%  description, step_num]
 %
 % M.Litos 11/4/2013
 function [ data ] = E200_add_proc_vector(data,cam_name,ana_name,ishot,uid,...
-                                         dat,dat_name,units,desc)
+                                         dat,dat_name,units,desc,step_num)
 
 data.processed.vectors.(cam_name).(ana_name).(dat_name).UID(ishot)         = uid;
 if length(dat)>1 || ischar(dat)
@@ -28,6 +29,11 @@ else
 end    
 data.processed.vectors.(cam_name).(ana_name).(dat_name).units{ishot}       = units;
 data.processed.vectors.(cam_name).(ana_name).(dat_name).description{ishot} = desc;
+
+if nargin<10
+    step_num=1;
+end
+data.processed.vectors.(cam_name).(ana_name).(dat_name).step_num(ishot)    = step_num;
 
 end
 

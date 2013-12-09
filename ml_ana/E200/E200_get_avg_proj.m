@@ -1,10 +1,17 @@
 %% E200_get_avg_proj
 %  Function to get average profiles in x & y from a dataset
+%  for a given scan step number, if given
 %
-function [data, avg_proj_x, avg_proj_y ] = E200_get_avg_proj( data, cam_name )
+%  M.Litos Dec.8,2013
+function [data, avg_proj_x, avg_proj_y ] = E200_get_avg_proj( data, cam_name, scan_step )
 
 % make plots?
 plots_on = false;
+
+% scan step given?
+if nargin<3
+    scan_step = -1;
+end
 
 % get preprocessed data struct
 preproc = data.processed.vectors.(cam_name).preproc;
@@ -12,6 +19,10 @@ preproc = data.processed.vectors.(cam_name).preproc;
 % get UIDs <-- necessary?
 uid = data.raw.images.(cam_name).UID;
 
+% get scan step numbers
+if isfield(data.raw.scalars,'step_num')
+    step_num = data.raw.scalars.step_num.dat;
+end
 
 % get initial sizes
 proj_x1 = cell2mat(preproc.x_proj_cnts_px.dat(1)); % x-projection
@@ -29,8 +40,16 @@ avg_proj_x = zeros(1,full_size_x);
 avg_proj_y = zeros(1,full_size_y);
 avg_pk_ind_x = 0;
 avg_pk_ind_y = 0;
+nshot_used = 0;
 for ishot=1:nshot
 
+    % only do one scan step, if given
+    if (scan_step>0 && step_num(ishot)~=scan_step)
+        continue;
+    else
+        nshot_used=nshot_used+1;
+    end
+    
     % make projections
     proj_x = cell2mat(preproc.x_proj_cnts_px.dat(ishot)); % x-projection
     proj_y = cell2mat(preproc.y_proj_cnts_px.dat(ishot)); % y-projection
@@ -93,12 +112,12 @@ for ishot=1:nshot
     
 end
 
-avg_proj_x = avg_proj_x/nshot;
-avg_proj_y = avg_proj_y/nshot;
+avg_proj_x = avg_proj_x/nshot_used;
+avg_proj_y = avg_proj_y/nshot_used;
 
 
-avg_pk_ind_x = avg_pk_ind_x/nshot;
-avg_pk_ind_y = avg_pk_ind_y/nshot;
+avg_pk_ind_x = avg_pk_ind_x/nshot_used;
+avg_pk_ind_y = avg_pk_ind_y/nshot_used;
 
 offset_x = round(full_size_x/2-avg_pk_ind_x);
 avg_proj_x = avg_proj_x(offset_x:offset_x+init_size_x);
@@ -120,10 +139,10 @@ end
 % create data.processed.vectors.cam_name.tomo.avg_proj_x.[UID, dat, units,description]
 data = E200_add_proc_vector(data,cam_name,'tomo',1,1, ...
             avg_proj_x,'avg_proj_x','counts', ...
-            'Average projection in x in counts.');
+            'Average projection in x in counts.',scan_step);
 % create data.processed.vectors.cam_name.tomo.avg_proj_y.[UID, dat, units,description]
 data = E200_add_proc_vector(data,cam_name,'tomo',1,1, ...
             avg_proj_y,'avg_proj_y','counts', ...
-            'Average projection in y in counts.');
+            'Average projection in y in counts.',scan_step);
 
 end
