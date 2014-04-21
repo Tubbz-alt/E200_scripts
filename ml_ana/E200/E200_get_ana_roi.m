@@ -58,7 +58,12 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
             ana_roi_y = [ 101  800];
         elseif strcmpi(cam_name,'CMOS')
             ana_roi_x = [1001 2400];
-            ana_roi_y = [ 821 1330];
+%             ana_roi_y = [ 821 1330];
+            ana_roi_y = [ 821 1326];
+        elseif strcmpi(cam_name,'ELANEX')
+            ana_roi_x = [  51 1392];
+%             ana_roi_y = [   1 1040];
+            ana_roi_y = [ 241 1040];
         else
             ana_roi_x = [1 size_x];
             ana_roi_y = [1 size_y];

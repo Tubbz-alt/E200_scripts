@@ -51,7 +51,8 @@ if ~(in_data) || strcmpi(readwrite,'overwrite')
         elseif strcmpi(cam_name,'CELOSS')            
             cnt2e = 1./(2.6654e-03); % for 6/29/2013
         elseif strcmpi(cam_name,'CMOS')
-            cnt2e = 1;
+%             cnt2e = 34.71; % OLD ESTIMATE! from 6/30/2013 11335
+            cnt2e = 35.54; % NEW ESTIMATE! from 6/30/2013 11335
         else
             cnt2e = 1;
         end

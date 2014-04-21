@@ -62,7 +62,7 @@ for istep=1:nstep
     
     % central value on YAG in mm
     yag_mm(istep) = data.raw.scalars.step_value.dat{istep};
-
+    
     % central energy for this step in GeV
     energy(istep) = yag_cal*yag_mm(istep);
     
