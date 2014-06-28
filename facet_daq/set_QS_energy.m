@@ -5,10 +5,11 @@ if E<-20 || E>10
 else
     disp(sprintf('\nSetting QS quads to the requested imaged energy.\n'));
 % VAL = (1+E/20.5)*[209.11, -158.71]; % Imaging condition for plasma exit in 2012
-VAL = (1+E/20.35)*[213.07, -156.01]; % Imaging condition for E200 IP or plasma exit in 2013
+% VAL = (1+E/20.35)*[213.07, -156.01]; % Imaging condition for E200 IP or plasma exit in 2013
 % VAL = (1+E/20.35)*[179.83, -153.34]; % Imaging condition for WIP #1 in 2013 
 % VAL = (1+E/20.35)*[199.86, -156.97]; % Imaging condition for IPOTR1 in 2013
 % VAL = (1+E/20.35)*[362.5, -176.40]; % Imaging condition for E201IP in 2013
+VAL = (1+E/20.35)*[209.57, -160.51]; % Imaging condition for E200 IP or plasma exit in Fall of 2013
     control_magnetSet({'LGPS:LI20:3261', 'LGPS:LI20:3311'}, VAL,  'action', 'TRIM');
 end
 

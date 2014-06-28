@@ -1,4 +1,6 @@
-function background = E200_takeBackground(cams)
+function [background, param] = E200_takeBackground(param)
+
+cams = param.cam_UNIQ;
 
 set_2_9(1);
 pause(3);
@@ -11,6 +13,8 @@ ROI_YNP = lcaGetSmart(strcat(cams(:,2), ':ROI_YNP'));
 RESOLUTION = lcaGetSmart(strcat(cams(:,2), ':RESOLUTION'));
 X_ORIENT = lcaGetSmart(strcat(cams(:,2), ':X_ORIENT'));
 Y_ORIENT = lcaGetSmart(strcat(cams(:,2), ':Y_ORIENT'));
+
+if param.run_cmos; param = E200_cmosBackground(param); end
 
 for i=1:size(img,1)
     if size(img,2)>1

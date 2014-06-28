@@ -19,6 +19,14 @@ switch funcind
         end
         setdefaults(handles,-150,150,7);
         updateScanText(handles,'MeV');
+    case 5
+        handles.func=@set_QS_energy_ELANEX;
+        setdefaults(handles,-2,2,5);
+        updateScanText(handles,'GeV');
+    case 6
+        handles.func=@slit_scan;
+        setdefaults(handles,-1.5,1.5,10);
+        updateScanText(handles,'mm');
 end
 
 

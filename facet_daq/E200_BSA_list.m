@@ -22,3 +22,10 @@ BSA_list{end+1,1} = 'BPMS:LI20:3315:TMIT';
 
 BSA_list{end+1,1} = 'BLEN:LI20:3014:BRAW';  % BSA Pyro 2013
 BSA_list{end+1,1} = 'BLEN:LI20:3014:BIMAX'; % BSA Pyro 2013
+
+%BSA_list{end+1,1} = 'IP330:LI20:EX01:CH02'; %E201 pyro signal
+
+BSA_list{end+1,1} = 'PMTR:LA20:10:PWR'; % Laser power
+
+BSA_list{end+1,1} = 'TCAV:LI20:2400:P'; % TCAV phase
+BSA_list{end+1,1} = 'TCAV:LI20:2400:A'; % TCAV amplitude

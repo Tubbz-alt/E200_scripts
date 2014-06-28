@@ -4,7 +4,7 @@
 % Changelog :
 % E. Adli, Mar 22, 2013
 %   First version!
-% S. Corde, Mar 27, 2013
+   % S. Corde, Mar 27, 2013 (is this the correct date?)
 %   Added 'param' input argument
 %%
 function E200_gen_scan(fcnHandle, Control_PV_start, Control_PV_end, n_step, param)
@@ -22,6 +22,7 @@ else
 end
 
 for i=1:n_step
+    par.cmos_file = ['data_step_' num2str(i,'%02d')];
     if i>1; par.set_print2elog=0; par.increment_save_num=0; par.save_facet=0; par.save_E200=0; par.save_back = 0; end;
     Control_PV = Control_PV_start + (i-1) * (Control_PV_end-Control_PV_start) / (n_step-1);
     fcnHandle(Control_PV);

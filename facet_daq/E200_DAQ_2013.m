@@ -45,13 +45,19 @@ else
     E200_state = 0;
 end
 
-if(param.save_back); cam_back = E200_takeBackground(param.cams); else cam_back = 0; end;
+if(param.save_back); [cam_back, param] = E200_takeBackground(param); else cam_back = 0; end;
+
+if(param.run_cmos)
+    disp(['Prepping CMOS ' datestr(clock,'HH:MM:SS')]);
+    param = prep_cmos(param);
+end
 
 disp(['Starting EPICS acquistion ' datestr(clock,'HH:MM:SS')]);
 myeDefNumber = E200_startEPICS();
 
 disp(['Starting Image acquistion ' datestr(clock,'HH:MM:SS')]);
 param = E200_startImage(param);
+if(param.run_cmos); start_cmos(param); end;
 tic;
 if param.aida_daq
     disp(['Starting AIDA acquistion ' datestr(clock,'HH:MM:SS')]);
@@ -63,7 +69,7 @@ else
 end
 toc;
 % Check DAQ Status
-stat_list = strcat(param.cams(:,2),':STATUS_DAQ');
+stat_list = strcat(param.cam_UNIQ(:,2),':STATUS_DAQ');
 if toc < 1
     while size(stat_list,1)>1; stat_list(lcaGetSmart(stat_list) == 2) = []; end;
     while lcaGetSmart(stat_list) ~= 2; end;
@@ -71,6 +77,7 @@ else
     while size(stat_list,1)>1; stat_list(lcaGetSmart(stat_list) == 2 | lcaGetSmart(stat_list) == 0) = []; end;
     while lcaGetSmart(stat_list) == 1; end;
 end
+if(param.run_cmos); disable_cmos(param); end;
 disp(['Image acquistion complete ' datestr(clock,'HH:MM:SS')]);
 
 % Add the correct timestamp to the save_name
@@ -104,11 +111,11 @@ if param.set_print2elog; E200_print2elog(Comment); end;
 
 if param.wait
     % Check Save Status
-    while sum(lcaGetSmart(strcat(param.cams(:,2),':STATUS_DAQ'))) ~= 0; end;
+    while sum(lcaGetSmart(strcat(param.cam_UNIQ(:,2),':STATUS_DAQ'))) ~= 0; end;
     disp(['Image saving complete ' datestr(clock,'HH:MM:SS')]);
 
     % Disable DAQ when finished
-    lcaPut(strcat(param.cams(:,2),':ENABLE_DAQ'),0);
+    lcaPut(strcat(param.cam_UNIQ(:,2),':ENABLE_DAQ'),0);
     
     % Get filenames for image files
     filenames = E200_getFilenames(param);

@@ -193,15 +193,15 @@ elseif par.camera_config == 23
     par.cams = {'HALO', 'EXPT:LI20:3203'};
     
 elseif par.camera_config == 24
-    % Erik fix me!
+  % Erik fix me!  What do you mean... delete this entry?
     par.cams = {'CELOSS',    'PROF:LI20:3483'};
     
 elseif par.camera_config == 25
-    % Erik fix me!
+    % Erik fix me!  What do you mean... delete this entry?
     par.cams = {'CELOSS',    'PROF:LI20:3483'};
      
 elseif par.camera_config == 26
-    % Erik fix me!
+    % Erik fix me! What do you mean... delete this entry?
     par.cams = {'CELOSS',    'PROF:LI20:3483'};
     
 elseif par.camera_config == 27
@@ -228,7 +228,155 @@ elseif par.camera_config == 29
             'BETAL',    'PROF:LI20:3486';
             'BREAKDOWN', 'EXPT:LI20:3208';
             'IP2B',     'MIRR:LI20:3230'};
+
+
+elseif par.camera_config == 30
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'IPOTR',    'OTRS:LI20:3180';
+            'IPOTR2',    'EXPT:LI20:3208';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485'};
+
+   
+elseif par.camera_config == 31
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'BETAL',    'PROF:LI20:3486';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485'};
+
+
+elseif par.camera_config == 32
+    % Two-bunch galore experiment
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA1',    'PROF:LI20:3487';
+            'BETA2',    'PROF:LI20:3488';
+            'ELANEX',    'EXPT:LI20:3206'};
+
+
+elseif par.camera_config == 33
+    % Two-bunch almost galore experiment (w/o beta1)
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA2',    'PROF:LI20:3488';
+            'ELANEX',    'EXPT:LI20:3206'};
+
+elseif par.camera_config == 34
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA2',    'PROF:LI20:3488';};
+
+elseif par.camera_config == 35
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA2',    'PROF:LI20:3488';
+            'ELANEX',    'EXPT:LI20:3206'};
+
+elseif par.camera_config == 36
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'BETA2',    'PROF:LI20:3488';
+            'PHOSPHOR',    'EXPT:LI20:3206'};
+
+elseif par.camera_config == 37
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'IP2B',    'MIRR:LI20:3230'};
+
+elseif par.camera_config == 38
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485';
+            'BETAL',    'PROF:LI20:3486';
+            'IP2B',    'MIRR:LI20:3230';
+            'PHOSPHOR',    'EXPT:LI20:3206'};
+        
+elseif par.camera_config == 39
+    % For TCAV data taking
+    par.cams = {'YAG',     'YAGS:LI20:2432';
+            'IP2A',    'MIRR:LI20:3202';
+            'IP2B',    'MIRR:LI20:3230';
+            'CELOSS',    'PROF:LI20:3483';
+            'CEGAIN',    'PROF:LI20:3485'};
+   
+elseif par.camera_config == 40
+    % For vignetting study
+    par.cams = {'YAG', 'YAGS:LI20:2432';
+        'CNEAR',    'PROF:LI20:3483'};
+
+elseif par.camera_config == 41
+  %
+  par.cams = {
+  'YAG',     'YAGS:LI20:2432';
+  'DSOTR',    'OTRS:LI20:3206';
+  'IP2B',    'MIRR:LI20:3230'};
+
+elseif par.camera_config == 42
+  %
+  par.cams = {
+  'YAG',        'YAGS:LI20:2432';
+  'CMOS_CNEAR', 'CMOS:LI20:3491';
+  'CMOS_FAR',   'CMOS:LI20:3492'};
+
+elseif par.camera_config == 43
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070';
+  'CMOS_NEAR', 'CMOS:LI20:3491';
+  'CMOS_FAR',   'CMOS:LI20:3492'};
+
+elseif par.camera_config == 44
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070'};
+
+elseif par.camera_config == 45
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070';
+  'IP2B',    'MIRR:LI20:3230'};
+
+elseif par.camera_config == 46
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070';
+  'BETAL',    'PROF:LI20:3486';
+  'CMOS_NEAR', 'CMOS:LI20:3491';
+  'CMOS_FAR',   'CMOS:LI20:3492'};
+
+elseif par.camera_config == 47
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070';
+  'BETAL',    'PROF:LI20:3486';
+  'BETA1',    'PROF:LI20:3487';
+  'CEGAIN',    'PROF:LI20:3485';
+  'CMOS_NEAR', 'CMOS:LI20:3491';
+  'CMOS_FAR',   'CMOS:LI20:3492'};
+
+elseif par.camera_config == 48
+  %
+  par.cams = {
+  'USTHz',        'OTRS:LI20:3070';
+  'DSOTR',    'OTRS:LI20:3206'};
+
 else
     error('Camera config %d does not exist',par.camera_config);
-        
+
 end
+
+par.is_CMOS = strncmp('CMOS',par.cams(:,2),4);
+par.num_CMOS = sum(par.is_CMOS);
+par.run_cmos = par.num_CMOS > 0;
+par.cam_CMOS = par.cams(par.is_CMOS,:);
+par.cam_UNIQ = par.cams(~par.is_CMOS,:);
+par.num_UNIQ = sum(~par.is_CMOS);

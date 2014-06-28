@@ -1,27 +1,39 @@
 % Usage :
-%     [isok, BDES1, BDES2, K1, K2, m12, m34, M4] = E200_calc_QS(QS_setting, d_from_MIP, E0);
+%     function [isok, BDESQS1, BDESQS2, KQS1, KQS2, m12, m34, M4] = E200_calc_QS(z_OB, z_IM, QS_setting, E0, m12_req, m34_req)
 % Calc's imaging quad setting for FACET spectrometer
 %
 %    Example usage: 
-% QS_setting = +0; % [GeV]
-% d_from_MIP = +0.28;% [m], positive is downstream of MIP
-% E0 = 20.35; % [GeV]
-% [isok, BDES1, BDES2, K1, K2, m12, m34, M4] = E200_calc_QS(QS_setting, d_from_MIP, E0);
-% if(isok), BDES1, BDES2, end% if
+%QS_setting = 0;
+%E0 = 20.35;
+% 2013_2 value
+%z_MIP = 1993.285;
+%z_CHERFAR = 2016.0398;  
+%[isok, BDESQS1, BDESQS2, KQS1, KQS2, m12, m34, M4] = E200_calc_QS(z_MIP, z_CHERFAR, QS_setting, E0)
 %
 %% Changelog :
 %% E. Adli, February 26, 2013
 %%   First version!
+%% E. Adli, November 12, 2013
+%%   Updated to use absolute coordinates
+%% E. Adli, November 26, 2013
+%%   Updated for arbitrary m12 and m34 settings
 
-function [isok, BDESQS1, BDESQS2, KQS1, KQS2, m12, m34, M4] = E200_calc_QS(QS_setting, d_from_MIP, E0)
+function [isok, BDESQS1, BDESQS2, KQS1, KQS2, m12, m34, M4] = E200_calc_QS(z_OB, z_IM, QS_setting, E0, m12_req, m34_req)
 %%% input
 % QS_setting = +0; [GeV]
 % d_from_MIP = 0.0;% [m], positive is downstream of MIP
 % E0 = 20.35; [GeV]
 
+if(nargin < 5)
+  m12_req = 0;
+end% if
+if(nargin < 6)
+  m34_req = 0;
+end% if
+
 delta_E_E0 = QS_setting / E0;
 
-save -mat /tmp/QS_optim.temp delta_E_E0 d_from_MIP
+save -mat /tmp/QS_optim.temp delta_E_E0 z_OB z_IM m12_req m34_req
 
 % initial guesses (2012 values)
 KQS1_0 = 0.3;
@@ -36,7 +48,7 @@ if(chi2 < mytol)
   KQS1 = fit_result(1);
   KQS2 = fit_result(2);
   isok = 1;
-  [m12, m34, M4] = E200_calc_QS_M(KQS1, KQS2, delta_E_E0, d_from_MIP);
+  [m12, m34, M4] = E200_calc_QS_M_abs(KQS1, KQS2, delta_E_E0, z_OB, z_IM);
 else
   KQS1 = NaN;
   KQS2 = NaN;

@@ -1,4 +1,14 @@
-function [eta_max, eta_cent, eta_fmin, eta_fmax] = DISP_ANA(scan_info_file,put,print,view)
+function [eta_max, eta_cent, eta_fmin, eta_fmax] = DISP_ANA(scan_info_file,put,print,view,cam_name)
+
+if nargin < 5
+    sYAGPV = 'YAGS:LI20:2432';
+    YAGIMG = 'YAG';
+elseif strcmp(cam_name,'USTHz')
+    sYAGPV = 'YAGS:LI20:2432';
+    YAGIMG = 'USTHz';
+else
+    error('bad cam name');
+end
 
 eta_model = 112;
 
@@ -32,7 +42,7 @@ end
 if length(d) ~= length(scan_info); error('Number of image files and .mat files not equal'); end;
 
 % Get YAG information
-res = lcaGetSmart('YAGS:LI20:2432:RESOLUTION');
+res = lcaGetSmart([sYAGPV ':RESOLUTION']);
 x_ctr = 671;
 y_ctr = 416;
 LineLim = lcaGetSmart({'SIOC:SYS1:ML00:AO751' 'SIOC:SYS1:ML00:AO752' 'SIOC:SYS1:ML00:AO753' 'SIOC:SYS1:ML00:AO754'});
@@ -69,9 +79,9 @@ for i = 1:length(scan_info)
     energy(i) = scan_info(i).Control_PV;
     delta(i) = scan_info(i).Control_PV/(1000*20.35);
     % read images
-    [im_dat,C] = E200_readImages(scan_info(i).YAG);
+    [im_dat,C] = E200_readImages(scan_info(i).(YAGIMG));
     % get bg
-    back = uint16(flipud(fliplr(d(1).cam_back.YAG.img)));
+    back = uint16(flipud(fliplr(d(1).cam_back.(YAGIMG).img)));
     backs = repmat(back,[1,1,size(im_dat,3)]);
     
     % orient images and subtract bg
@@ -137,27 +147,27 @@ eta_fmax = d_fmax(2);
 fmax_fit = d_fmax(1)*delta.^2 + d_fmax(2)*delta + d_fmax(3);
 
 figure(1);
-subplot(2,1,1);
+%subplot(2,1,1);
 plot(x_line,line_out);
 legend(strcat(num2str(energy','%0.1f'),' MeV'),'location','northwest');
-hold on;
-plot(x_max,max_spec,'k*',cent_spec,cent_val,'r*',fx_min,fmin_val,'g*',fx_max,fmax_val,'c*');
+% hold on;
+% plot(x_max,max_spec,'k*',cent_spec,cent_val,'r*',fx_min,fmin_val,'g*',fx_max,fmax_val,'c*');
 axis([x_line(1) x_line(end) 0 max(max(line_out))+10]);
-hold off;
+%hold off;
 xlabel('X (mm)','fontsize',14);
 title('Average of SYAG Spectra','fontsize',16);
-subplot(2,1,2);
-plot(delta,x_max,'k*',delta,cent_spec,'r*',delta,fx_min,'g*',delta,fx_max,'c*');
-legend('Spectrum Maximum','Spectrum Centroid','FWHM Low','FWHM High','location','northwest');
-hold on;
-plot(delta,max_fit,'k:',delta,cent_fit,'r:',delta,fmin_fit,'g:',delta,fmax_fit,'c:');
-hold off;
-%plot(delta,x_max,'k*',delta,max_fit,'g',delta,cent_spec,'r*',delta,cent_fit,'b');
-%legend('Spectrum Maximum','Dispersion fit to Max','Spectrum Centroid','Dispersion fit to Centroid','location','northwest');
-xlabel('\delta','fontsize',14);
-ylabel('X (mm)','fontsize',14);
-title(['\eta_{max} = ' num2str(eta_max,'%0.2f') ', \eta_{cent} = ' num2str(eta_cent,'%0.2f') ...
-    ', \eta_{low} = ' num2str(eta_fmin,'%0.2f') ', \eta_{high} = ' num2str(eta_fmax,'%0.2f')],'fontsize',16);
+% subplot(2,1,2);
+% plot(delta,x_max,'k*',delta,cent_spec,'r*',delta,fx_min,'g*',delta,fx_max,'c*');
+% legend('Spectrum Maximum','Spectrum Centroid','FWHM Low','FWHM High','location','northwest');
+% hold on;
+% plot(delta,max_fit,'k:',delta,cent_fit,'r:',delta,fmin_fit,'g:',delta,fmax_fit,'c:');
+% hold off;
+% %plot(delta,x_max,'k*',delta,max_fit,'g',delta,cent_spec,'r*',delta,cent_fit,'b');
+% %legend('Spectrum Maximum','Dispersion fit to Max','Spectrum Centroid','Dispersion fit to Centroid','location','northwest');
+% xlabel('\delta','fontsize',14);
+% ylabel('X (mm)','fontsize',14);
+% title(['\eta_{max} = ' num2str(eta_max,'%0.2f') ', \eta_{cent} = ' num2str(eta_cent,'%0.2f') ...
+%     ', \eta_{low} = ' num2str(eta_fmin,'%0.2f') ', \eta_{high} = ' num2str(eta_fmax,'%0.2f')],'fontsize',16);
 
 etas = [eta_model, eta_max, eta_cent, eta_fmin, eta_fmax];
 
@@ -325,4 +335,4 @@ title(['Fit to BPM Data: \eta_{2050} = ' num2str(pax_2050(2),'%0.2f') ', \eta_{2
     ', \eta_{2445e} = ' num2str(pex_2445(2),'%0.2f')],'fontsize',16);
 %set(l,'fontsize',16);
 %set(l,'location','northwest');
-if print; util_printLog(2); end;
+%if print; util_printLog(2); end;

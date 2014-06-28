@@ -6,6 +6,8 @@
 %   First version!
 % E. Adli, Apr 27, 2013
 %   Updated for generic sbend setting
+% E. Adli, Sep 10, 2013
+%   Bugfixes: FOV correction (3%) for CEGAIN and offset for CELOSS
 
 function [p,y] = E200_cher_E_calib(y_meas, offset, visu, sbend_data, sbend_setting, granularity)
 
@@ -29,22 +31,28 @@ if nargin < 6
   granularity = 1e-3;
 end % if
 
-
+% maximum value to calc for (higher -> more time consuming)
+p_calc_max = 150; % [GeV]
 
 % scale B5D36 in case different value from nominal
 y_meas(:,1) = y_meas(:,1) * sbend_setting / sbend_data;
 
+% one can add offset here
+y_meas(:,2) = y_meas(:,2) + offset;
+
 % fit
 P = polyfit(y_meas(:,1), y_meas(:,2), 1);
 
-y_inf = P(2)*1.0 + offset;
-p_0 = y_meas(1,1);
-y_0 = y_meas(1,2) + offset;
+y_inf = P(2)*1.0; % + offset; 
+p_0 = y_meas(1,1); 
+% or here, does not matter, except for plotting
+%y_0 = y_meas(1,2) + offset;
+y_0 = y_meas(1,2);
 
 p_fit = 0:40;
 y_fit = P(2) + P(1)*p_fit;
 
-p = 1:granularity:150;
+p = 1:granularity:p_calc_max;
 y = y_inf + (y_0 - y_inf)*p_0./p;
 
 if(visu)
@@ -63,7 +71,11 @@ if(visu)
   grid on;
   xlabel('y [pix]');
   ylabel('E [GeV]');
-  axis([49 1392 0 60]);
+  if(max(y_meas(:,2) > 1392)) 
+    axis([49 2559 0 100]); % CMOS
+  else
+  axis([49 1392 0 60]); % UNIQ
+  end% if
   pause;
 end% if
 

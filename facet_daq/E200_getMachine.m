@@ -16,6 +16,8 @@ for i = 1:size(good_strings)
 	state.(char(name)) = strings(i);
 end
 
+% add description of PVS
+state.PV_desc = [nonBSA_desc; desc_strings];
 
 end
 

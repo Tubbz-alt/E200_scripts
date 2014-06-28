@@ -8,7 +8,7 @@ set(0,'defaulttextfontsize',18);
     pixel_ROI = 1:1392; % ROI
     offset = 0;
    E = E200_cher_get_E_axis(datename, prof_name, visualization, pixel_ROI, 0, sbend_setting); % quick to call
-   [E, Eres, D] = E200_cher_get_E_axis(datename, prof_name, visualization, pixel_ROI, 0, sbend_setting); % slower to call
+%   [E, Eres, D] = E200_cher_get_E_axis(datename, prof_name, visualization, pixel_ROI, 0, sbend_setting); % slower to call
    subplot(3,1,1);
    hh = plot(pixel_ROI, E);
    set(hh, 'LineWidth', 3');

@@ -1,14 +1,24 @@
 % Usage :
-%     function [m12, m34, M4] = E200_calc_QS_M(KQS1, KQS2, d_OB, d_IM)
+%     function [m12, m34, M4] = E200_calc_QS_M(KQS1, KQS2, ds)
 % calc's imaging terms of FACET spectrometer
 
 %% Changelog :
 %% E. Adli, February 26, 2013
 %%   First version!
+%% E. Adli, November 12, 2013
+%%   Updated to use absolute coordinates
 
-function [m12, m34, M4] = E200_calc_QS_M(KQS1, KQS2, delta_E_E0, d_OB, d_IM)
+function [m12, m34, M4] = E200_calc_QS_M_abs(KQS1, KQS2, delta_E_E0, z_OB, z_IM)
 % K1, K2 [/m2] 
 % delta_E_E0 [-], i.e. QS=+1, delta_E_E0 = +1/20.35
+
+% absolute value of QS1 and QS2
+z_QS1 = 1999.206665; % [m], middle of quad
+z_QS2 = 2004.206665; % [m], middle of quad
+LEFF_QS1 = 1; % [m]
+LEFF_QS2 = 1; % [m]
+LEFF_BEND = 0.9779; % [m]
+z_BEND = 2005.938477; % [m], middle of bend
 
 % length KS1
 l = 1.0;
@@ -72,19 +82,26 @@ LQS12QS2 = 4.0;
 LQS22DIP = 0.742799;
 LDIP2CHER = 9.9;
 
-d1 = LIPOTR2QS1 - d_OB; % postive d_OB, start downstream MIP
+%  OLD: relative numbers
+d1_old = LIPOTR2QS1;% - ds % postive ds, start downstream MIP
+d2_old = LQS12QS2;
+d3_old =  LQS22DIP;
+d4_old =  LDIP2CHER;
+
+d1 = (z_QS1-LEFF_QS1/2) - z_OB;
+d2 = (z_QS2-LEFF_QS2/2) - (z_QS1+LEFF_QS2/2);
+d3 = (z_BEND-LEFF_BEND/2) - (z_QS2+LEFF_QS2/2);
+d4 = z_IM - (z_BEND+LEFF_BEND/2);
+
 M_01 = [1 d1; 0 1];
 M4_01 = [M_01 OO; OO M_01];
 
-d2 = LQS12QS2;
 M_02 = [1 d2; 0 1];
 M4_02 = [M_02 OO; OO M_02];
 
-d3 =  LQS22DIP;
 M_03 = [1 d3; 0 1];
 M4_03 = [M_03 OO; OO M_03];
 
-d4 =  LDIP2CHER + d_IM; % positive d_IM, start downstream CHER
 M_04 = [1 d4; 0 1];
 M4_04 = [M_04 OO; OO M_04];
 

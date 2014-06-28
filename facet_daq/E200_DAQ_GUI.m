@@ -22,7 +22,7 @@ function varargout = E200_DAQ_GUI(varargin)
 
 % Edit the above text to modify the response to help E200_DAQ_GUI
 
-% Last Modified by GUIDE v2.5 21-May-2013 20:05:02
+% Last Modified by GUIDE v2.5 16-Nov-2013 17:23:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -122,7 +122,9 @@ par=E200_Cam_Configs(par);
 
 par.cams
 
-set(handles.Cameralist,'String',par.cams(:,1));
+cameras = par.cams(:,1);
+%if get(handles.UseCMOS,'value'); cameras = [cameras; 'CMOS']; end
+set(handles.Cameralist,'String',cameras);
 
 
 
@@ -192,6 +194,17 @@ par.save_back=get(handles.Savebackground,'Value');
 par.set_print2elog=get(handles.Print2elog,'Value');
 par.aida_daq=get(handles.AIDAdaq,'Value');
 par.n_shot=str2num(get(handles.Numberofshots,'String'));
+par.cmos_n_shot=str2num(get(handles.Numberofshots,'String'));
+
+% CMOS stuff
+%par.run_cmos = get(handles.UseCMOS,'Value');
+%[day,rem]=strtok(datestr(now),'-');
+%[month,rem]=strtok(rem,'-');
+%date_path = ['/media/CMOS_Volume/data/' month '_' day];
+%E200_setNum = lcaGetSmart('SIOC:SYS1:ML02:AO001')+1;
+%E200_dir = ['/E200_' num2str(E200_setNum) '/'];
+%par.cmos_path = [date_path E200_dir];
+par.cmos_file = 'data_step_01';
 
 par.comt_str=get(handles.Commentstring,'String');
 
@@ -200,10 +213,10 @@ if get(handles.Daqscan,'Value')
     endval=str2num(get(handles.Scanendval,'String'));
     stepsval=str2num(get(handles.Scanstepsval,'String'));
     switch get(handles.Scanfunction,'Value')
-        case {1, 2, 3}
+        case {1, 2, 3, 5, 6}
             E200_gen_scan(handles.func,startval,endval,stepsval,par);
         case 4
-            E200_Dispersion_Scan(startval,endval,stepsval,par);
+            E200_Dispersion_Scan(startval,endval,stepsval,par.n_shot,par.camera_config);
     end
 else
     E200_DAQ_2013(par);
@@ -328,7 +341,7 @@ function Scanfunction_Callback(hObject, eventdata, handles)
 handles=scanDefaults(hObject,handles);
 
 switch get(handles.Scanfunction,'Value')
-    case {1,2,3}
+    case {1,2,3,5,6}
         set(handles.Setfunctionval,'Enable','on');
         set(handles.Setfunction,'Enable','on');
     case 4
@@ -480,5 +493,24 @@ function Setfunction_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 handles.func(str2num(get(handles.Setfunctionval,'String')));
+
+
+% --- Executes on button press in UseCMOS.
+% function UseCMOS_Callback(hObject, eventdata, handles)
+% % hObject    handle to UseCMOS (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Hint: get(hObject,'Value') returns toggle state of UseCMOS
+% if get(hObject,'Value')
+%     cameras = get(handles.Cameralist,'String');
+%     cameras = [cameras; 'CMOS'];
+%     set(handles.Cameralist,'String',cameras);
+% else
+%     cameras = get(handles.Cameralist,'String');
+%     cm_ind = strcmp('CMOS',cameras);
+%     cameras = cameras(~cm_ind);
+%     set(handles.Cameralist,'String',cameras);
+% end
 
 

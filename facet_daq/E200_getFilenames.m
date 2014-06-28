@@ -1,9 +1,15 @@
 function filenames = E200_getFilenames(param)
 
 for i = 1:param.num_NAS
-    if i == 1; nCam = param.pm01_cams; end;
-    if i == 2; nCam = param.pm02_cams; end;
-    if i == 3; nCam = param.pm03_cams; end;
+    if param.flip_nas
+        if i == 1; nCam = param.pm03_cams; end;
+        if i == 2; nCam = param.pm02_cams; end;
+        if i == 3; nCam = param.pm01_cams; end;
+    else
+        if i == 1; nCam = param.pm01_cams; end;
+        if i == 2; nCam = param.pm02_cams; end;
+        if i == 3; nCam = param.pm03_cams; end;
+    end
 
     list = dir([param.save_path{i}, '/*.header']);
 

@@ -108,5 +108,7 @@ lcaPutSmart(fbpv,fbstate);
 disp('Acquisition finished.');
 s_name = [par_out.save_path{1} '/' par_out.save_name(1:11) 'scan_info'];
 save(s_name, 'scan_info');
-disp('Dispersion Analysis. . .');
-DISP_ANA(s_name,0,1,0);
+
+disp('Analyzing dispersion at sYAG. . .');
+cam_name = par_out.cams{1,1};
+DISP_ANA(s_name,0,1,0,cam_name);
