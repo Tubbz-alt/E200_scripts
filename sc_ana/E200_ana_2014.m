@@ -16,22 +16,23 @@ is_ana_local = 0;
 prefix = '/Volumes/PWFA_4big';
 day = '20140526';
 experiment = 'E200';
-data_set_num = 12967;
+data_set_num = 12966;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2014_E200_Data_Analysis/' day '/'];
 data_set = [experiment '_' num2str(data_set_num)];
 
-E_range = [10 25];
+E_range = [11 26];
 x_range = [220 350];
+pix_E0 = 1582; % Pixel position of 20.35 GeV electrons on CMOS FAR, from Erik: 1597 after May 21 and 1623 before.
 SYAG_caxis = [0 400];
-CMOS_FAR_caxis = [0 3.8];
+CMOS_FAR_caxis = [0 4.];
 ELANEX_caxis = [0 1500];
 fs = 20;
 
 
 %% Load data
 
-if ~exist(prefix)
+if ~exist(prefix,'dir')
     system(['mkdir ' prefix]);
     system(['/usr/local/bin/sshfs ' user '@quickpicmac3.slac.stanford.edu:/Volumes/PWFA_4big/' ' ' prefix]);
     pause(2);
@@ -87,84 +88,20 @@ QS = data.raw.scalars.step_value.dat(EPICS_index);
 
 if sum(SYAG.UID ~= CMOS_FAR.UID); 
     disp('SYAG and CMOS_FAR are not synchronous.');
-%     return;
 end
 
 if ~sum(SYAG.UID(SYAG_index) ~= CMOS_FAR.UID(CMOS_FAR_index)); 
     disp('But common UIDs were selected.');
-%     return;
 end
 
-% USTORO = E200_state.SIOC_SYS1_ML01_AO028 + E200_state.SIOC_SYS1_ML01_AO027*[data.epics_data.GADC0_LI20_EX01_AI_CH2_];
-% DSTORO = E200_state.SIOC_SYS1_ML01_AO030 + E200_state.SIOC_SYS1_ML01_AO029*[data.epics_data.GADC0_LI20_EX01_AI_CH3_];
 
-
-% BETAL.X_RTCL_CTR = 700;
-% BETAL.Y_RTCL_CTR = 500;
-% CEGAIN.X_RTCL_CTR = 700;
-% CEGAIN.Y_RTCL_CTR = 500;
-% CELOSS.X_RTCL_CTR = 700;
-% CELOSS.Y_RTCL_CTR = 500;
-
-% BETAL.xx = 1e-3*BETAL.RESOLUTION * ( (BETAL.ROI_X-BETAL.X_RTCL_CTR+1):(BETAL.ROI_X+BETAL.ROI_XNP-BETAL.X_RTCL_CTR) );
-% BETAL.yy = sqrt(2) * 1e-3*BETAL.RESOLUTION * ( (BETAL.ROI_Y-BETAL.Y_RTCL_CTR+1):(BETAL.ROI_Y+BETAL.ROI_YNP-BETAL.Y_RTCL_CTR) );
-% CEGAIN.xx = 1e-3*CEGAIN.RESOLUTION * ( (CEGAIN.ROI_X-CEGAIN.X_RTCL_CTR+1):(CEGAIN.ROI_X+CEGAIN.ROI_XNP-CEGAIN.X_RTCL_CTR) );
-% CEGAIN.yy = 1e-3*CEGAIN.RESOLUTION * ( (CEGAIN.ROI_Y-CEGAIN.Y_RTCL_CTR+1):(CEGAIN.ROI_Y+CEGAIN.ROI_YNP-CEGAIN.Y_RTCL_CTR) );
-% CELOSS.xx = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_X-CELOSS.X_RTCL_CTR+1):(CELOSS.ROI_X+CELOSS.ROI_XNP-CELOSS.X_RTCL_CTR) );
-% CELOSS.yy = 1e-3*CELOSS.RESOLUTION * ( (CELOSS.ROI_Y-CELOSS.Y_RTCL_CTR+1):(CELOSS.ROI_Y+CELOSS.ROI_YNP-CELOSS.Y_RTCL_CTR) );
-
-% clear processed;
-% processed.scalars.GAMMA_MAX.dat = [];
-% processed.scalars.GAMMA_YIELD.dat = [];
-% processed.scalars.GAMMA_DIV.dat = [];
-% processed.scalars.E_ACC.dat = [];
-% processed.scalars.E_DECC.dat = [];
-% processed.scalars.E_UNAFFECTED.dat = [];
-% processed.scalars.E_UNAFFECTED2.dat = [];
-% processed.scalars.E_EMIN.dat = [];
-% processed.scalars.E_EMIN_ind.dat = [];
-% processed.scalars.E_EMAX.dat = [];
-% processed.scalars.E_EMAX2.dat = [];
-% processed.scalars.E_EMAX3.dat = [];
-% processed.scalars.E_EMAX_ind.dat = [];
-% processed.scalars.E_EMAX2_ind.dat = [];
-% processed.scalars.E_EMAX3_ind.dat = [];
-% 
-% processed.scalars.PYRO.dat = [];
-% processed.scalars.EX_CHARGE.dat = [];
-%     
-% processed.vectors.CEGAIN_SPEC.dat = {};
-% processed.vectors.CEGAIN_SPEC2.dat = {};
-% processed.vectors.CELOSS_SPEC.dat = {};
-% 
-% processed.scalars.GAMMA_MAX.UID = [];
-% processed.scalars.GAMMA_YIELD.UID = [];
-% processed.scalars.GAMMA_DIV.UID = [];
-% processed.scalars.E_ACC.UID = [];
-% processed.scalars.E_DECC.UID = [];
-% processed.scalars.E_UNAFFECTED.UID = [];
-% processed.scalars.E_UNAFFECTED2.UID = [];
-% processed.scalars.E_EMIN.UID = [];
-% processed.scalars.E_EMIN_ind.UID = [];
-% processed.scalars.E_EMAX.UID = [];
-% processed.scalars.E_EMAX2.UID = [];
-% processed.scalars.E_EMAX3.UID = [];
-% processed.scalars.E_EMAX_ind.UID = [];
-% processed.scalars.E_EMAX2_ind.UID = [];
-% processed.scalars.E_EMAX3_ind.UID = [];
-% 
-% processed.scalars.PYRO.UID = [];
-% processed.scalars.EX_CHARGE.UID = [];
-% 
-% processed.vectors.CEGAIN_SPEC.UID = [];
-% processed.vectors.CEGAIN_SPEC2.UID = [];
-% processed.vectors.CELOSS_SPEC.UID = [];
+%% Energy axis for CMOS FAR
 
 B5D36 = getB5D36(data.raw.metadata.E200_state.dat{1});
-% QS = getQS(data.raw.metadata.E200_state.dat{1});
+E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 6e-3, B5D36);
 
-E_CMOS_FAR = E200_cher_get_E_axis('20131116', 'CMOS', 0, 1:2559, 0, B5D36);
 
+%% Initialisation of waterfalls and vectors
 clear waterfall;
 waterfall.CMOS_FAR = zeros(sum(E_CMOS_FAR<E_range(2) & E_CMOS_FAR>E_range(1)), n_common);
 waterfall.SYAG = zeros(971, n_common);
@@ -209,14 +146,7 @@ for i=1:n_common
     ELANEX.img2(ELANEX.img<1) = 1;
     waterfall.ELANEX(:,i) = sum(ELANEX.img,2);
       
-%     figure(2)
-%     plot(E_CMOS_FAR(E_CMOS_FAR<E_range(2) & E_CMOS_FAR>E_range(1)), waterfall.CMOS_FAR(:,i),'g');
-%     ylim([0 max(waterfall.CMOS_FAR(:,i))]);
-%     figure(3)
-%     pcolor(CMOS_FAR.img); caxis([0 1000]); shading flat; colorbar();
-%     
-    
-   
+  
     if i==1
         figure(1)
         h_text = axes('Position', [0.3, 0.95, 0.2, 0.035], 'Visible', 'off');
@@ -229,7 +159,7 @@ for i=1:n_common
 %             B5D36_text = text(0., 0., ['B5D36 = ' num2str(B5D36, '%.2f') ' GeV'], 'fontsize', 20);
 %         end;
 
-        axes('position', [0.1, 0.08, 0.8, 0.25]);
+        axes('position', [0.1, 0.08, 0.8, 0.2]);
         yy = 1:2559;
         yy = yy(E_CMOS_FAR<E_range(2) & E_CMOS_FAR>E_range(1));
         xx = x_range;
@@ -239,9 +169,9 @@ for i=1:n_common
         axis xy;
         caxis(CMOS_FAR_caxis);
         cb = colorbar();
-        set(cb, 'YTick', [0 1 2 3]);
-        set(cb, 'YTickLabel', [1 10 100 1000]);
-        energy_ticks = [12.5, 15, 17.5, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+        set(cb, 'YTick', [0 1 2 3 4]);
+        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
+        energy_ticks = [10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 45, 50, 55, 60];
         xticks = interp1(E_CMOS_FAR(yy), yy, energy_ticks);
         set(gca, 'XTick', xticks);
         set(gca, 'XTickLabel', energy_ticks);
@@ -249,7 +179,7 @@ for i=1:n_common
         title('CMOS FAR (log scale)');
         xlabel('Electron energy (GeV)', 'fontsize', fs+10);
 
-        axes('position', [0.1, 0.70, 0.8, 0.25]);
+        axes('position', [0.1, 0.64, 0.8, 0.2]);
         image(fliplr(SYAG.img2(600:end,180:1150)), 'CDataMapping', 'scaled');
         colormap(cmap.wbgyr);
         colorbar();
@@ -260,15 +190,16 @@ for i=1:n_common
         set(gca, 'fontsize', fs);
         title('SYAG');
         
-        axes('position', [0.1, 0.40, 0.8, 0.25]);
+        axes('position', [0.1, 0.36, 0.8, 0.2]);
         imagesc(ELANEX.img2);
         colormap(cmap.wbgyr);
         cb = colorbar();
+        fig_ELANEX = get(gca,'Children');
         caxis(ELANEX_caxis);
         daspect([1 1 1]);
-        fig_ELANEX = get(gca,'Children');
-        
-        
+        set(gca, 'fontsize', fs);
+        title('ELANEX');
+
         
     else
 %         if is_scan; set(STEP, 'String', [char(regexprep(scan_info(i).Control_PV_name, '_', '\\_')) ' = ' num2str(scan_info(i).Control_PV)]); end;

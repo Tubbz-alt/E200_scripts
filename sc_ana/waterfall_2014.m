@@ -36,11 +36,11 @@ water_type_list = [{'SYAG'}, {'CMOS_FAR'}];
 
 QS = data.raw.scalars.step_value.dat(EPICS_CMOS_FAR);
 
-Q_WB = sum(waterfall.E200_12614.SYAG(520:590,:),1);
-Q_DB = sum(waterfall.E200_12614.SYAG(40:380,:),1);
+Q_WB = sum(waterfall.(char(data_set{1})).SYAG(520:590,:),1);
+Q_DB = sum(waterfall.(char(data_set{1})).SYAG(40:380,:),1);
 
 x_WB = zeros(1,300);
-for i=1:300; x_WB(i) = sum((520:590)'.*waterfall.E200_12614.SYAG(520:590,i))/Q_WB(i); end;
+for i=1:300; x_WB(i) = sum((520:590)'.*waterfall.(char(data_set{1})).SYAG(520:590,i))/Q_WB(i); end;
 
 toro_2452_tmit = data.raw.scalars.GADC0_LI20_EX01_AI_CH0_.dat(EPICS_CMOS_FAR);
 toro_3163_tmit = data.raw.scalars.GADC0_LI20_EX01_AI_CH2_.dat(EPICS_CMOS_FAR);
@@ -68,8 +68,8 @@ laser_off = laser < 5;
 % for water_type_step = 1:length(water_type_list)
 
 
-water_type = water_type_list(water_type_step);
-water_type = char(water_type);
+% water_type = water_type_list(water_type_step);
+% water_type = char(water_type);
 % water_type = 'CEGAIN2';
 % data_step = 7;
 % qs_step = 3;
@@ -91,8 +91,8 @@ water_type = char(water_type);
 % b = waterfall.(data_set{data_step}).(char(water_type));
 
 
-b = waterfall.E200_12614.CMOS_FAR';
-c = waterfall.E200_12614.SYAG';
+b = waterfall.(char(data_set{1})).CMOS_FAR';
+c = waterfall.(char(data_set{1})).SYAG';
 
 d = b([1:160 210:280],:);
 
