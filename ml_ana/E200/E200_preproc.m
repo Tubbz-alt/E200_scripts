@@ -144,8 +144,7 @@ for ishot=1:nshot
         scale_dsbpm_2  = 1.0/1.2498;
         
         ustoro_cal1 = E200_state.SIOC_SYS1_ML01_AO028;
-        ustoro_cal2 = E200_state.SIOC_SYS1_ML01_AO027;
-        
+        ustoro_cal2 = E200_state.SIOC_SYS1_ML01_AO027;        
         USTORO = scale_ustoro*(ustoro_cal1 + ustoro_cal2 * data.raw.scalars.GADC0_LI20_EX01_AI_CH2_.dat(...
             data.raw.scalars.GADC0_LI20_EX01_AI_CH2_.UID==uid)); % electrons
     

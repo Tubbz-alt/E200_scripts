@@ -26,6 +26,12 @@ if nargin<4
     datasetnum = 11330;
 end
 
+% define the path components
+if year==2013
+    nas_path   = 'nas/nas-li20-pm01/';
+else
+    nas_path   = 'nas/nas-li20-pm00/';
+end
 % convert to strings
 year=num2str(year);
 month=num2str(month,'%02.f');
@@ -33,8 +39,6 @@ day=num2str(day,'%02.f');
 datasetnum=num2str(datasetnum);
 experiment = 'E200';
 
-% define the path components
-nas_path   = 'nas/nas-li20-pm01/';
 ymd        = [year month day];
 dataset    = [experiment '_' datasetnum];
 % define the full path filename
