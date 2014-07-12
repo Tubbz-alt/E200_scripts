@@ -95,6 +95,16 @@ cog_X_CNEAR = [970.4899  945.5104  925.1957  910.2534  904.8308  875.1855  862.6
 
 
 
+elseif (strcmp(datename, '20140315') ) 
+%
+% date_name = '2014/20140315/';
+%
+calib_X = 24.88;
+sbend_data = 20.35; % sbend setting when data was taken
+B5D36DES = ([16.3500   19.3500  20.35  22.3500   25.3500   28.3500]);
+cog_Y_CMOS = (2160-[290 625 738  965 1305 1655])*1e0 * calib_X/1e3;
+cog_X_CMOS = [475.3233  479.8413  470  474.4370  470.9172 470] * calib_X/1e3;
+
 else
   disp('EA: no calib for this date');
   stop;
@@ -128,6 +138,11 @@ elseif( strcmp(camname,'CMOS') ),
   n_range = 3:10;
   my_meas = [B5D36DES(n_range)' cog_Y_CMOS(n_range)'/calib_X*1e3]; % [GeV; pix]
   my_meas = [20.3500  cog_Y_CMOS(6)/calib_X*1e3; my_meas]; % add nominal at start
+  [p,y] = E200_cher_E_calib(my_meas, offset, visu, sbend_data, sbend_setting, granularity);
+elseif( strcmp(camname,'CMOS_NEAR') ),
+  n_range = 1:6;
+  my_meas = [B5D36DES(n_range)' cog_Y_CMOS(n_range)'/calib_X*1e3]; % [GeV; pix]
+  my_meas = [20.3500  cog_Y_CMOS(3)/calib_X*1e3; my_meas]; % add nominal at start
   [p,y] = E200_cher_E_calib(my_meas, offset, visu, sbend_data, sbend_setting, granularity);
 else
   disp('EA: no calib for this cam. Returning pixels');

@@ -9,12 +9,14 @@ function QS_val = getQS(E200_state)
 if isfield(E200_state, 'LI20_LGPS_3261_BDES')
     if ~isnan(E200_state.LI20_LGPS_3261_BDES) && ~isnan(E200_state.LI20_LGPS_3311_BDES);
         QS = [E200_state.LI20_LGPS_3261_BDES, E200_state.LI20_LGPS_3311_BDES];
-        E = 20.35 * QS./[213.07, -156.01] - 20.35;
+%         E = 20.35 * QS./[213.07, -156.01] - 20.35; % Imaging condition for E200 IP or plasma exit in 2013
+        E = 20.35 * QS./[261.72, -167.95] - 20.35; % Imaging condition for E200 IP long plasma exit, Apr. 22 2014
         if abs(E(1)-E(2))<0.1
             QS_val = E(1);
         else
             QS_val = 0;
-            disp('QS 1 and QS 2 values does not match a QS energy setting that images plasma exit in 2013. QS_val set to nominal 0 GeV.')
+%             disp('QS 1 and QS 2 values does not match a QS energy setting that images plasma exit in 2013. QS_val set to nominal 0 GeV.')
+            disp('QS 1 and QS 2 values does not match a QS energy setting that images plasma exit in 2014. QS_val set to nominal 0 GeV.')
         end
     else
         QS_val = 0;

@@ -369,6 +369,11 @@ elseif par.camera_config == 48
   'USTHz',        'OTRS:LI20:3070';
   'DSOTR',    'OTRS:LI20:3206'};
 
+elseif par.camera_config == 49
+  %
+  par.cams = {
+  'EOS',        'OTRS:LI20:3175';};
+
 else
     error('Camera config %d does not exist',par.camera_config);
 

@@ -3,7 +3,7 @@
 
 % Sebastien Corde
 % Create: May 2, 2014
-% Last edit: June 27, 2014
+% Last edit: July 8, 2014
 
 %% Define data set and paths
 
@@ -14,20 +14,25 @@ user = 'corde';
 is_ana_local = 0;
 % prefix = '~/PWFA_4big';
 prefix = '/Volumes/PWFA_4big';
-day = '20140526';
+day = '20140609';
 experiment = 'E200';
-data_set_num = 12966;
+data_set_num = 13284;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2014_E200_Data_Analysis/' day '/'];
 data_set = [experiment '_' num2str(data_set_num)];
 
 E_range = [11 26];
-x_range = [220 350];
+% x_range = [220 350];
+x_range = [290 420];
 pix_E0 = 1582; % Pixel position of 20.35 GeV electrons on CMOS FAR, from Erik: 1597 after May 21 and 1623 before.
 SYAG_caxis = [0 400];
 CMOS_FAR_caxis = [0 4.];
 ELANEX_caxis = [0 1500];
 fs = 20;
+
+pyro_cut = [0 15000]; % for Waterfall Plot
+pyro_cut = [5500 7000];
+
 
 
 %% Load data
@@ -95,11 +100,14 @@ if ~sum(SYAG.UID(SYAG_index) ~= CMOS_FAR.UID(CMOS_FAR_index));
 end
 
 
-%% Energy axis for CMOS FAR
+%% Energy axis for CMOS FAR and ELANEX
 
 B5D36 = getB5D36(data.raw.metadata.E200_state.dat{1});
 E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 6e-3, B5D36);
 
+QS_init = getQS(data.raw.metadata.E200_state.dat{1});
+E_ELANEX = get_ELANEX_axis(QS_init);
+is_QS_PEXT_scan = strcmp(char(data.raw.metadata.param.dat{1}.fcnHandle), 'set_QS_energy_PEXT');
 
 %% Initialisation of waterfalls and vectors
 clear waterfall;
@@ -124,6 +132,7 @@ for i=1:n_common
     % i=3;
 %     if is_qsbend_scan; B5D36 = 20.35 + scan_info(i).Control_PV; end;
     
+    if is_QS_PEXT_scan; E_ELANEX = get_ELANEX_axis(QS(i)); end;
 
     SYAG.img = double(imread([prefix '/' SYAG.dat{SYAG_index(i)}]))-double(SYAG.back);
     SYAG.img2 = SYAG.img;
@@ -190,15 +199,16 @@ for i=1:n_common
         set(gca, 'fontsize', fs);
         title('SYAG');
         
-        axes('position', [0.1, 0.36, 0.8, 0.2]);
-        imagesc(ELANEX.img2);
+        axes('position', [0.3, 0.36, 0.4, 0.2]);
+        pcolor(1:size(ELANEX.img2,2),E_ELANEX,ELANEX.img2); shading flat;
         colormap(cmap.wbgyr);
         cb = colorbar();
         fig_ELANEX = get(gca,'Children');
         caxis(ELANEX_caxis);
-        daspect([1 1 1]);
+%         daspect([1 1 1]);
         set(gca, 'fontsize', fs);
         title('ELANEX');
+        ylabel('Electron energy (GeV)', 'fontsize', fs);
 
         
     else
@@ -206,6 +216,8 @@ for i=1:n_common
         set(SHOT, 'String', ['Shot UID: ' num2str(COMMON_UID(i))]);
         set(fig_CMOS_FAR,'CData',log10(CMOS_FAR.img2(E_CMOS_FAR<E_range(2) & E_CMOS_FAR>E_range(1),x_range(1):x_range(2))'));
         set(fig_ELANEX,'CData',ELANEX.img2);
+        set(fig_ELANEX,'YData',E_ELANEX);
+        set(get(fig_ELANEX,'Parent'),'YLim',[E_ELANEX(end) E_ELANEX(1)]);
         set(fig_SYAG,'CData',fliplr(SYAG.img2(600:end,180:1150)));
     end
     if do_save
@@ -237,7 +249,11 @@ end
 
 
 
+%% ELANEX Waterfall Plot
 
+
+
+%% CMOS Far Waterfall Plot
 
 
 

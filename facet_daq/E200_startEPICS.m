@@ -1,5 +1,5 @@
 % S. Corde and S. Gessner 3/9/13
-function myeDefNumber = startEPICS()
+function myeDefNumber = E200_startEPICS(param)
 
 sys = 'SYS1';
 nRuns_pv = [ 'SIOC:' sys ':ML02:AO500' ];
@@ -25,10 +25,15 @@ if isequal (myeDefNumber, 0)
 	put2log('Sorry, failed to get eDef');
 	return;
 else
-	% Get the INCM&EXCM
-	[incmSet, incmReset, excmSet, excmReset] = getINCMEXCM('NDRFACET');
+    % Get the INCM&EXCM
+    if param.event_code == 213
+        [incmSet, incmReset, excmSet, excmReset, beamcode] = getINCMEXCM('NDRFACET');
+    end
+    if param.event_code == 233
+        [incmSet, incmReset, excmSet, excmReset, beamcode] = getINCMEXCM('SDRFACET');
+    end
 	% Set the number of pulses
-	eDefParams (myeDefNumber, 1, 2800, incmSet, incmReset, excmSet, excmReset);
+	eDefParams (myeDefNumber, 1, 2800, incmSet, incmReset, excmSet, excmReset, beamcode);
 	% press GO button
 	eDefOn (myeDefNumber);
 end

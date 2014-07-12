@@ -1,3 +1,3 @@
 function set_dummy(d)
 
-disp(sprintf('\nDummy set function called.\n'));
+fprintf(['\nDummy set function called with value ' num2str(d) '.\n']);

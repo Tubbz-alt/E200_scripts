@@ -297,6 +297,8 @@ nonBSA_list{end+1,1} = 'TRIG:LA20:LS24:TWID'; 	     % Pace Maker 10Hz width
 nonBSA_list{end+1,1} = 'TRIG:LA20:LS25:TWID';        % SDG Gate width
 nonBSA_list{end+1,1} = 'TRIG:LA20:LS26:TWID';        % Time Interval Counter width
 nonBSA_list{end+1,1} = 'TRIG:LA20:LS27:TWID';        % Legend 120 Hz width
+nonBSA_list{end+1,1} = 'OSC:LA20:10:FS_TGT_TIME';    % Target time
+nonBSA_list{end+1,1} = 'UTIC:LA20:10:GetOffsetInvMeasMean_ns';    % readback time
 
 %-------------------------------------------------------------------------%
 % String PVs - can't do a combined lcaGet with string PVs and number PVs
@@ -615,7 +617,8 @@ nonBSA_desc{end+1,1} = 'Pace Maker 10Hz width';
 nonBSA_desc{end+1,1} = 'SDG Gate width';
 nonBSA_desc{end+1,1} = 'Time Interval Counter width';
 nonBSA_desc{end+1,1} = 'Legend 120 Hz width';
-
+nonBSA_desc{end+1,1} = 'Target time';
+nonBSA_desc{end+1,1} = 'Measure time';
 
 
 

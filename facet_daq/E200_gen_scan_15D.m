@@ -44,7 +44,7 @@ par.comt_str = ['E200 scan, using function "' Control_PV_name '",\nfrom ' num2st
 fcnHandle2(Control_PV_2);
  
 for i=1:n_step
-    if par.run_cmos == 1; par.cmos_file = ['data_step_' num2str(i,'%02d')]; end
+    par.cmos_file = ['data_step_' num2str(i,'%02d')];
     if i>1; par.set_print2elog=0; par.increment_save_num=0; par.save_facet=0; par.save_E200=0; par.save_back = 0; end;
     Control_PV = Control_PV_start + (i-1) * (Control_PV_end-Control_PV_start) / (n_step-1);
     fcnHandle(Control_PV);

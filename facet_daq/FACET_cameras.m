@@ -1,63 +1,18 @@
 function par = FACET_cameras(par)
 
 CAMS = par.cams;
+par.num_CAM = numel(CAMS);
 
-names = model_nameListFACETProf();
-
-UNIQ_CAMS = {'YAGS:LI20:2432'; ...
-        'OTRS:LI20:3070'; ...
-        'OTRS:LI20:3075'; ...
-        'OTRS:LI20:3158'; ...
-        'OTRS:LI20:3175'; ...
-        'OTRS:LI20:3180'; ...
-        'PROF:LI20:3185'; ...
-        'OTRS:LI20:3206'; ...
-        'MIRR:LI20:3202'; ...
-        'EXPT:LI20:3176'; ...
-        'EXPT:LI20:3203'; ...
-        'EXPT:LI20:3206'; ...
-        'EXPT:LI20:3208'; ...
-        'OTRS:LI20:3208'; ...
-        'MIRR:LI20:3230'; ...
-        'PROF:LI20:3483'; ...
-        'PROF:LI20:3484'; ...
-        'PROF:LI20:3485'; ...
-        'PROF:LI20:3486'; ...
-        'PROF:LI20:3487'; ...
-        'PROF:LI20:3488'};
-
-SIOC_CS01 = {'CMOS:LI20:3490'};
-SIOC_CS02 = {'CMOS:LI20:3491'};
-SIOC_CS03 = {'CMOS:LI20:3492'};
-
-CMOS_CAMS = [SIOC_CS01; SIOC_CS02; SIOC_CS03];
-    
-SIOC_PM20 = {'PROF:LI20:10'; ...
-        'PROF:LI20:12'; ...
-        'PROF:LI20:B100'; ...
-        'PROF:LI20:B101'; ...
-        'PROF:LI20:B102'; ...
-        'PROF:LI20:B103'; ...
-        'PROF:LI20:B104'};
-
-SIOC_PM21 = {'PROF:LI20:2432'; ...
-        'PROF:LI20:3300'; ...
-        'PROF:LI20:3301'; ...
-        'PROF:LI20:3302'; ...
-        'PROF:LI20:3303'; ...
-        'PROF:LI20:3500'; ...
-        'PROF:LI20:3501'};
-
-GIGE_CAMS = [SIOC_PM20; SIOC_PM21];
-
-AD_CAMS = [CMOS_CAMS; GIGE_CAMS];
+list_struct = cam_list();
 
 par.is_UNIQ = zeros(size(CAMS));
 par.is_CS01 = zeros(size(CAMS));
 par.is_CS02 = zeros(size(CAMS));
 par.is_CS03 = zeros(size(CAMS));
+par.is_CS04 = zeros(size(CAMS));
 par.is_PM20 = zeros(size(CAMS));
 par.is_PM21 = zeros(size(CAMS));
+par.is_PM22 = zeros(size(CAMS));
 par.is_CMOS = zeros(size(CAMS));
 par.is_GIGE = zeros(size(CAMS));
 par.is_AD   = zeros(size(CAMS));
@@ -66,26 +21,95 @@ par.names = cell(size(CAMS));
 
 for i=1:par.num_CAM
     
-    index=strcmp(CAMS{i},names(:,2));
-    par.names(i) = names(index,1);
+    index = strcmp(CAMS{i},list_struct.UNIQ_CAMS.PVS);
+    if sum(index)
+        par.names(i) = list_struct.UNIQ_CAMS.NAMES(index);
+        par.is_UNIQ(i) = 1;
+    else
+        par.is_UNIQ(i) = 0;
+    end
     
-    is_UNIQ = sum(strcmp(CAMS{i},UNIQ_CAMS));
-    is_CS01 = sum(strcmp(CAMS{i},SIOC_CS01));
-    is_CS02 = sum(strcmp(CAMS{i},SIOC_CS02));
-    is_CS03 = sum(strcmp(CAMS{i},SIOC_CS03));
-    is_PM20 = sum(strcmp(CAMS{i},SIOC_PM20));
-    is_PM21 = sum(strcmp(CAMS{i},SIOC_PM21));
-    is_CMOS = sum(strcmp(CAMS{i},CMOS_CAMS));
-    is_GIGE = sum(strcmp(CAMS{i},GIGE_CAMS));
-    is_AD   = sum(strcmp(CAMS{i},AD_CAMS));
+    index = strcmp(CAMS{i},list_struct.SIOC_CS01.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_CS01.NAMES(index);
+        par.is_CS01(i) = 1;
+        par.is_CMOS(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_CS01(i) = 0;
+        par.is_CMOS(i) = 0;
+        par.is_AD(i)   = 0;
+    end
     
-    par.is_UNIQ(i) = is_UNIQ;
-    par.is_CS01(i) = is_CS01;
-    par.is_CS02(i) = is_CS02;
-    par.is_CS03(i) = is_CS03;
-    par.is_PM20(i) = is_PM20;
-    par.is_PM21(i) = is_PM21;
-    par.is_CMOS(i) = is_CMOS;
-    par.is_GIGE(i) = is_GIGE;
-    par.is_AD(i)   = is_AD;
+    index = strcmp(CAMS{i},list_struct.SIOC_CS02.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_CS02.NAMES(index);
+        par.is_CS02(i) = 1;
+        par.is_CMOS(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_CS02(i) = 0;
+        par.is_CMOS(i) = 0;
+        par.is_AD(i)   = 0;
+    end
+    
+    index = strcmp(CAMS{i},list_struct.SIOC_CS03.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_CS03.NAMES(index);
+        par.is_CS03(i) = 1;
+        par.is_CMOS(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_CS03(i) = 0;
+        par.is_CMOS(i) = 0;
+        par.is_AD(i)   = 0;
+    end
+    
+    index = strcmp(CAMS{i},list_struct.SIOC_CS04.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_CS04.NAMES(index);
+        par.is_CS04(i) = 1;
+        par.is_CMOS(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_CS04(i) = 0;
+        par.is_CMOS(i) = 0;
+        par.is_AD(i)   = 0;
+    end
+    
+    index = strcmp(CAMS{i},list_struct.SIOC_PM20.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_PM20.NAMES(index);
+        par.is_PM20(i) = 1;
+        par.is_GIGE(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_PM20(i) = 0;
+        par.is_GIGE(i) = 0;
+        par.is_AD(i)   = 0;
+    end
+    
+    index = strcmp(CAMS{i},list_struct.SIOC_PM21.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_PM21.NAMES(index);
+        par.is_PM21(i) = 1;
+        par.is_GIGE(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_PM21(i) = 0;
+        par.is_GIGE(i) = 0;
+        par.is_AD(i)   = 0;
+    end
+    
+    index = strcmp(CAMS{i},list_struct.SIOC_PM22.PVS);
+    if sum(index)
+        par.names(i) = list_struct.SIOC_PM22.NAMES(index);
+        par.is_PM22(i) = 1;
+        par.is_GIGE(i) = 1;
+        par.is_AD(i)   = 1;
+    else
+        par.is_PM22(i) = 0;
+        par.is_GIGE(i) = 0;
+        par.is_AD(i)   = 0;
+    end
 end

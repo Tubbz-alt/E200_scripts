@@ -5,3 +5,6 @@ try
 catch
     display('Unable to set phase ramp');
 end
+
+disp('Current phase ramp readback (DR12:PHAS:61:VACT)');
+lcaGet('DR12:PHAS:61:VACT')

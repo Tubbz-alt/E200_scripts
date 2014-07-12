@@ -71,9 +71,11 @@ if(visu)
   grid on;
   xlabel('y [pix]');
   ylabel('E [GeV]');
-  if(max(y_meas(:,2) > 1392)) 
-    axis([49 2559 0 100]); % CMOS
-  else
+  if(max(y_meas(:,2) > 2200)) 
+    axis([49 2559 0 100]); % CMOS Y
+  elseif(max(y_meas(:,2) > 1392)) 
+    axis([49 2159 0 100]); % CMOS X
+else
   axis([49 1392 0 60]); % UNIQ
   end% if
   pause;
