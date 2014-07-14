@@ -233,6 +233,7 @@ for ishot=1:nshot
         
         %% apply threshold -- TEMPORARY FOR DATASET 11330 CMOS ONLY!!
         img_thresh = 125;
+%         img_thresh = 0;
         CAMERA_img = CAMERA_img.*(CAMERA_img>img_thresh); % zero values below thresh
         CAMERA_img = CAMERA_img-(CAMERA_img>0)*img_thresh; % subtract thresh from non-zero values
         
