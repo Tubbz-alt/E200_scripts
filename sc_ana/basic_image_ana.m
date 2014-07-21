@@ -1,6 +1,6 @@
 function IM_ANA = basic_image_ana(im_struct,use_bg,roi,header)
 
-ntotal = im_struct.N_IMGS;
+ntotal = numel(im_struct.dat_common);
 
 if use_bg
     bg = load([header im_struct.background_dat{1}]);
@@ -33,7 +33,7 @@ disp(['Analyzing ' num2str(ntotal) ' images.']);
 for i = 1:ntotal
     display(i);
     
-    image = imread([header im_struct.dat{i}]);
+    image = imread([header im_struct.dat_common{i}]);
     
     if roi.rot
         image = rot90(image,roi.rot);

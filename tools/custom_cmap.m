@@ -2,7 +2,7 @@
 
 % Sebastien Corde
 % Create: June 2, 2013
-% Last edit: June 2, 2013
+% Last edit: July 14, 2014
 
 % Convention: name of the color map is the ordered list of the colors
 % contained in the color map, e.g.: wbgyr for "white -> blue -> green ->
@@ -41,6 +41,16 @@ D = [1 1 1;
 F = [0 0.20 0.35 0.50 0.80 1];
 G = linspace(0, 1, 256);
 cmap.mjet = interp1(F,D,G);
+
+
+% "black -> green -> bright green"
+D = [0 0 0;
+     0 1 0;
+     0.5 1 0.5];
+F = [0 0.5 1];
+G = linspace(0, 1, 256);
+cmap.bg = interp1(F,D,G);
+
 
 
 end
