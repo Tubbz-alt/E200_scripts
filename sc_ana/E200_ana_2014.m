@@ -7,11 +7,7 @@
 
 %% Define data set and paths
 
-addpath(genpath('~/Dropbox/SeB/Codes/sources/E200_scripts'));
-addpath('~/Dropbox/SeB/Codes/sources/E200_data');
-
 user = 'corde';
-is_ana_local = 0;
 % prefix = '~/PWFA_4big';
 prefix = '/Volumes/PWFA_4big';
 day = '20140609';
@@ -42,6 +38,8 @@ if ~exist(prefix,'dir')
     system(['/usr/local/bin/sshfs ' user '@quickpicmac3.slac.stanford.edu:/Volumes/PWFA_4big/' ' ' prefix]);
     pause(2);
 end
+
+%%
 load([prefix '/nas/nas-li20-pm00/E200/2014/' day '/' data_set '/' data_set '.mat']);
 
 
