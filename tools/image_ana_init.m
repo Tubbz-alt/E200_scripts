@@ -13,6 +13,8 @@ ntotal = numel(im_struct.dat_common);
 im_struct.ana.x_profs = zeros(nh,ntotal);
 im_struct.ana.y_profs = zeros(nv,ntotal);
 im_struct.ana.y_profs_small_box = zeros(nv,ntotal);
+im_struct.ana.energy_spectrum = zeros(nv,ntotal);
+im_struct.ana.energy_spectrum_2 = zeros(nv,ntotal);
 im_struct.ana.x_maxs = zeros(nh,ntotal);
 im_struct.ana.y_maxs = zeros(nv,ntotal);
 im_struct.ana.x_max = zeros(1,ntotal);
@@ -34,8 +36,7 @@ im_struct.ana.Q_unaffected = zeros(1,ntotal);
 im_struct.ana.eloss = zeros(1,ntotal);
 im_struct.ana.egain = zeros(1,ntotal);
 im_struct.ana.efficiency = zeros(1,ntotal);
-im_struct.ana.energy_spectrum = zeros(nv,ntotal);
-im_struct.ana.energy_spectrum_2 = zeros(nv,ntotal);
+
 
 im_struct.ana.roi = roi;
 
