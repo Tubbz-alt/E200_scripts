@@ -7,12 +7,13 @@ image = double(imread([header im_struct.dat_common{i}]));
 if roi.rot; image = rot90(image,roi.rot); end;
 if roi.fliplr; image = fliplr(image); end;
 if roi.flipud; image = flipud(image); end;
+% if use_bg; image = image - 2.035*rot90(double(im_struct.ana.bg.img),2); end;
 if use_bg; image = image - double(im_struct.ana.bg.img); end;
 
 image = image(roi.top:roi.bottom,roi.left:roi.right);
 
-x_prof = mean(image);
-y_prof = mean(image,2);
+x_prof = sum(image);
+y_prof = sum(image,2);
 
 [~,ix] = max(x_prof);
 [~,iy] = max(y_prof);
