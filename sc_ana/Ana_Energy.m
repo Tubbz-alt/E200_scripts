@@ -33,12 +33,12 @@ img2 = squeeze(B(:,:,k));
 % band = mean(img2(E>(E(end)-2),:),1);
 % for i=1:size(img2,1); img2(i,:) = img2(i,:) - band; end;
 
-band_left = mean(img2(:,1:51),2);
-band_right = mean(img2(:,end-50:end),2);
-
-a = (band_right-band_left)/(size(img2,2)-51);
-b = band_left - a*26;
-for i=1:size(img2,1); img2(i,:) = img2(i,:) - (a(i)*(1:size(img2,2)) + b(i)); end;
+% band_left = mean(img2(:,1:51),2);
+% band_right = mean(img2(:,end-50:end),2);
+% 
+% a = (band_right-band_left)/(size(img2,2)-51);
+% b = band_left - a*26;
+% for i=1:size(img2,1); img2(i,:) = img2(i,:) - (a(i)*(1:size(img2,2)) + b(i)); end;
 
 % base = mean(mean(img(1:100,1:100)));
 % img = img-base;
@@ -46,7 +46,7 @@ for i=1:size(img2,1); img2(i,:) = img2(i,:) - (a(i)*(1:size(img2,2)) + b(i)); en
 
 
 filt_img = filter2(ones(15,40)/(15*40), img2);
-filt_img(filt_img<10)=0;
+% filt_img(filt_img<10)=0;
 spec = sum(filt_img,2);
 [spec2, ind_max] = max(filt_img,[],2);
 

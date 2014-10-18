@@ -8,26 +8,26 @@
 %% Define data set and paths
 
 user = 'corde';
-% prefix = '~/PWFA_4big';
-prefix = '/Volumes/PWFA_4big';
-day = '20140609';
+prefix = '~/PWFA_4big';
+% prefix = '/Volumes/PWFA_4big';
+day = '20140629';
 experiment = 'E200';
-data_set_num = 13284;
+data_set_num = 13537;
 do_save = 1;
 save_path = ['~/Dropbox/SeB/PostDoc/Projects/2014_E200_Data_Analysis/' day '/'];
 data_set = [experiment '_' num2str(data_set_num)];
 
-E_range = [11 26];
+E_range = [11 30];
 % x_range = [220 350];
-x_range = [290 420];
-pix_E0 = 1582; % Pixel position of 20.35 GeV electrons on CMOS FAR, from Erik: 1597 after May 21 and 1623 before.
+x_range = [250 550];
+pix_E0 = 1585; % Pixel position of 20.35 GeV electrons on CMOS FAR, from Erik: 1597 after May 21 and 1623 before.
 SYAG_caxis = [0 400];
 CMOS_FAR_caxis = [0 4.];
 ELANEX_caxis = [0 1500];
 fs = 20;
 
-pyro_cut = [0 15000]; % for Waterfall Plot
-pyro_cut = [5500 7000];
+pyro_cut = [0 20000]; % for Waterfall Plot
+% pyro_cut = [5500 7000];
 
 
 
@@ -101,7 +101,7 @@ end
 %% Energy axis for CMOS FAR and ELANEX
 
 B5D36 = getB5D36(data.raw.metadata.E200_state.dat{1});
-E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 6e-3, B5D36);
+E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 5.73e-3, B5D36);
 
 QS_init = getQS(data.raw.metadata.E200_state.dat{1});
 E_ELANEX = get_ELANEX_axis(QS_init);

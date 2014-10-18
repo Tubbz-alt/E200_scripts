@@ -7,8 +7,8 @@ image = double(imread([header im_struct.dat_common{i}]));
 if roi.rot; image = rot90(image,roi.rot); end;
 if roi.fliplr; image = fliplr(image); end;
 if roi.flipud; image = flipud(image); end;
-% if use_bg; image = image - 2.035*rot90(double(im_struct.ana.bg.img),2); end;
-if use_bg; image = image - double(im_struct.ana.bg.img); end;
+if use_bg==1; image = image - 2.027*rot90(double(im_struct.ana.bg.img),2); end;
+if use_bg==2; image = image - double(im_struct.ana.bg.img); end;
 
 image = image(roi.top:roi.bottom,roi.left:roi.right);
 

@@ -1,3 +1,10 @@
+
+% Script to analyze E200 2014 data with the new processed data structure.
+
+% Sebastien Corde
+% Create: July 2014
+% Last edit: October 13, 2014
+
 %%
 clear all;
 
@@ -6,23 +13,23 @@ clear all;
 %% Path and dataset
 
 % header = '';
-% header = '/Volumes/PWFA_4big';
-header = '~/PWFA_4big';
+header = '/Volumes/PWFA_4big';
+% header = '~/PWFA_4big';
 nas  ='/nas/nas-li20-pm00/';
 expt = 'E200';
 year = '/2014/';
 day  = '20140629/';
-dataset = '13543';
-pyro_cut = [1000 20000];
+dataset = '13539';
+pyro_cut = [100 20000];
 % pyro_cut = [13000 18000];
 laser_on_threshold = 0.5e7;
 
 data_path = [nas expt year day expt '_' dataset '/' expt '_' dataset '.mat'];
 cmap  = custom_cmap();
 
-do_save_image = 0;
+do_save_image = 1;
 
-
+addpath('~/Dropbox/SeB/Papers/__In_Preparation__2014_Corde_High_Gradient_Positron_Acceleration/Data Analysis/Energy Axis/');
 
 %% CMOS FAR settings
 
@@ -35,20 +42,24 @@ end
 % pix_E0 = 1572;  % Overwrite expected position
 % pix_E0 = 1589;  % Good for 20140625 E200_13450 QS = 0
 % pix_E0 = 1572;  % Good for 20140625 E200_13450 QS = 4.5
-% pix_E0 = 1593;  % Good for 20140625 E200_13445 to E200_13449, all QS
-pix_E0 = 1600;  % Good for 20140629 E200_13537 (to be verified with more Interaction Off shots)
+pix_E0 = 1593;  % Good for 20140625 E200_13445 to E200_13449, all QS
+% pix_E0 = 1600;  % Good for 20140629 E200_13537 (to be verified with more Interaction Off shots)
 
 % ROI for CMOS FAR
 cmos_far_roi.top = 1;
-cmos_far_roi.bottom = 2100;
+cmos_far_roi.bottom = 2559;
+cmos_far_roi.left = 71;
+cmos_far_roi.right = 710;
 % cmos_far_roi.left = 335-250; % Good for 20140625 E200_13445
 % cmos_far_roi.right = 335+350; % Good for 20140625 E200_13445
 % cmos_far_roi.left = 385-150; % Good for 20140625 E200_13448 to E200_13449
 % cmos_far_roi.right = 385+150; % Good for 20140625 E200_13448 to E200_13449
 % cmos_far_roi.left = 345-300; % Good for 20140625 E200_13450
 % cmos_far_roi.right = 345+300; % Good for 20140625 E200_13450
-cmos_far_roi.left = 385-310; % Good for 20140629 E200_13537
-cmos_far_roi.right = 385+310; % Good for 20140629 E200_13537
+% cmos_far_roi.left = 385-310; % Good for 20140629 E200_13537
+% cmos_far_roi.right = 385+310; % Good for 20140629 E200_13537
+% cmos_far_roi.left = 200; % Good for 20140629 E200_13543
+% cmos_far_roi.right = 550; % Good for 20140629 E200_13543
 cmos_far_roi.rot = 1;
 cmos_far_roi.fliplr = 0;
 cmos_far_roi.flipud = 0;
@@ -170,7 +181,7 @@ laser_on = laser_on_E224 > laser_on_threshold;
 %% Energy axis for CMOS FAR
 
 B5D36 = getB5D36(data.raw.metadata.E200_state.dat{1});
-E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 6e-3, B5D36);
+E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 5.73e-3, B5D36);
 E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
 
 
@@ -189,6 +200,8 @@ load('~/Dropbox/Data_Analysis/Backgrounds/CMOS_FAR_20140625_good_background.mat'
 CMOS_FAR.ana.bg.img = double(CMOS_FAR_20140625_good_background);
 for i=1:n_common
     [CMOS_FAR, image] = image_ana(CMOS_FAR,1,cmos_far_roi,header,i);
+    E_CMOS_FAR = Energy_Axis(dataset, step_val(i));
+    E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
     [CMOS_FAR, filt_img] = Ana_Energy(CMOS_FAR, E_CMOS_FAR, image, box_width, i);
     if do_save_image;
         image(image<1) = 1;
@@ -197,38 +210,39 @@ for i=1:n_common
         subplot(131);
         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
         pcolor(xx,E_CMOS_FAR,(image)); shading flat; colormap(cmap.wbgyr);
+%         pcolor(xx,1:2559,(image)); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
         ylim([E_CMOS_FAR(1) 30])
         caxis([0 2500]);
         xlabel('x (mm)', 'fontsize', 26);
-        ylabel('E (GeV)', 'fontsize', 26);
+%         ylabel('E (GeV)', 'fontsize', 26);
 %         title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
 %         set(cb, 'YTick', [0 1 2 3 4]);
 %         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
-        subplot(132);
-        xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
-        pcolor(xx,E_CMOS_FAR,(filt_img)); shading flat; colormap(cmap.wbgyr);
-        xlim([xx(1) xx(end-1)])
-        ylim([E_CMOS_FAR(1) 30])
-        caxis([0 2500]);
-        xlabel('x (mm)', 'fontsize', 26);
-        ylabel('E (GeV)', 'fontsize', 26);
-        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
-        cb = colorbar();
-%         set(cb, 'YTick', [0 1 2 3 4]);
-%         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
-        set(gca, 'Fontsize', 20);
-        subplot(133);
-        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
-        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
-        xlim([E_CMOS_FAR(1) 30]);
-        ylim([-11 100]);
-        xlabel('E (GeV)', 'fontsize', 26);
-        ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
-        set(gca, 'Fontsize', 20);
-        legend({'Full Box', ['Small Box (' num2str(box_width) ' pix wide)']}, 'location', 'Northwest', 'fontsize', 18);
+%         subplot(132);
+%         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
+%         pcolor(xx,E_CMOS_FAR,(filt_img)); shading flat; colormap(cmap.wbgyr);
+%         xlim([xx(1) xx(end-1)])
+%         ylim([E_CMOS_FAR(1) 30])
+%         caxis([0 2500]);
+%         xlabel('x (mm)', 'fontsize', 26);
+%         ylabel('E (GeV)', 'fontsize', 26);
+%         title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
+%         cb = colorbar();
+% %         set(cb, 'YTick', [0 1 2 3 4]);
+% %         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
+%         set(gca, 'Fontsize', 20);
+%         subplot(133);
+%         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
+%         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
+%         xlim([E_CMOS_FAR(1) 30]);
+%         ylim([-11 100]);
+%         xlabel('E (GeV)', 'fontsize', 26);
+%         ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
+%         set(gca, 'Fontsize', 20);
+%         legend({'Full Box', ['Small Box (' num2str(box_width) ' pix wide)']}, 'location', 'Northwest', 'fontsize', 18);
         if laser_on(i); string = 'laser_on'; else string = 'laser_off'; end;
         saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' string '_shots/' expt '_' dataset '_CMOS_FAR_' string '_Shot_' num2str(CMOS_FAR.UID_common(i),'%d') '_lin_scale'], 'png');
     end
@@ -361,14 +375,14 @@ CMOS_FAR_SPECS2(CMOS_FAR_SPECS2<1) = 1;
 CMOS_FAR_SPECS3(CMOS_FAR_SPECS3<1) = 1;
 
 
-sorting_variable = 9.4e-3 * (USTORO.dat_common - DSTORO.dat_common/1.0255); % Calibration with charge in unit of 10^10 e.
+% sorting_variable = 9.4e-3 * (USTORO.dat_common - DSTORO.dat_common/1.0255); % Calibration with charge in unit of 10^10 e.
 % sorting_variable = (9.4e-3 * USTORO.dat_common);
-% sorting_variable = PYRO.dat_common;
+sorting_variable = PYRO.dat_common;
 % sorting_variable = CMOS_FAR.ana.E_EMAX3;
 
-sorting_variable_label = 'Charge difference [10^{10} e]';
+% sorting_variable_label = 'Charge difference [10^{10} e]';
 % sorting_variable_label = 'Positron Charge [10^{10} e]';
-% sorting_variable_label = 'Pyro (arb. u.)';
+sorting_variable_label = 'Pyro (arb. u.)';
 
 % cond = sorting_variable<0.21 & sorting_variable>0.09 & laser_on;
 cond = laser_on;
@@ -395,8 +409,8 @@ n_step2 = numel(unique(step_num2));
 
 sorting = 1:n_common;
 sorting = sorting(cond);
-sorting = sorting(ind);
-sorting = sorting(ind2);
+% sorting = sorting(ind);
+% sorting = sorting(ind2);
 step_num2 = step_num(sorting);
 
 figure(1)
@@ -404,11 +418,14 @@ set(gcf,'color','w');
 set(gca,'fontsize',14);
 set(gcf,'paperposition',[0,0,10,8]);
 subplot(3,1,[1 2]); hold off;
-pcolor(1:numel(sorting),E_CMOS_FAR,log10(CMOS_FAR_SPECS(:,sorting))); shading flat; box off; 
+pcolor(1:numel(sorting),1:2559,log10(CMOS_FAR_SPECS(:,sorting))); shading flat; box off; 
+% pcolor(1:numel(sorting),E_CMOS_FAR,log10(CMOS_FAR_SPECS(:,sorting))); shading flat; box off; 
 cb = colorbar();
-caxis([3.4 6.3]);
-set(cb, 'YTick', [0 1 2 3 4 5 6]);
-set(cb, 'YTickLabel', [1 10 100 1000 10000 100000 1000000]);
+% caxis([3.4 6.3]);
+caxis([5.5 6.5]);
+% caxis([4 log10(2^16)]);
+set(cb, 'YTick', [0 1 2 3 4 log10(2^16) 5 6 7]);
+set(cb, 'YTickLabel', [1 10 100 1000 10000 2^16 100000 1000000 1e7]);
 xlabel('Imaging Energy Relative to 20.35 GeV (GeV) ','fontsize',14);
 % xlabel('Phase ramp [deg.]','fontsize',14);
 XTick_position  = find(diff(step_num2))+1;
@@ -420,15 +437,19 @@ for i = 1:(n_step2-1)
     line([XTick_position(i) XTick_position(i)],[E_CMOS_FAR(1) E_CMOS_FAR(end)],'color','k','linestyle','--');
 end
 
-ylabel('Energy (GeV)','fontsize',14);
+% ylabel('Energy (GeV)','fontsize',14);
 title(['Dataset ' dataset '. QS scan with CMOS FAR. Laser On '],'fontsize',14);
 % title(['Dataset ' dataset '. Phase ramp scan with CMOS FAR. Laser On '],'fontsize',14);
 % ylim([E_CMOS_FAR(1) E_CMOS_FAR(end)]);
-ylim([E_CMOS_FAR(1) 30])
+% ylim([E_CMOS_FAR(1) 30])
+ylim([1520 1650])
 
 hold on
-plot((1:numel(sorting))+0.5,CMOS_FAR.ana.E_EMAX3(sorting),'mo', 'MarkerFaceColor', 'm');
-plot((1:numel(sorting))+0.5,CMOS_FAR.ana.E_EMIN3(sorting),'c^', 'MarkerFaceColor', 'c');
+% plot((1:numel(sorting))+0.5,CMOS_FAR.ana.E_EMAX3(sorting),'mo', 'MarkerFaceColor', 'm');
+% plot((1:numel(sorting))+0.5,CMOS_FAR.ana.E_EMIN3(sorting),'c^', 'MarkerFaceColor', 'c');
+plot((1:numel(sorting))+0.5,y(sorting),'ko', 'MarkerFaceColor', 'k');
+plot([1 1000],[2400 2400 ],'m-', 'linewidth', 2);
+plot([1 1000],[2410 2410 ],'m-', 'linewidth', 2);
 
 subplot(313);
 plot(sorting_variable(sorting), 'o');
@@ -445,6 +466,8 @@ xlim([0 length(step_num2)]);
 ylim([min(sorting_variable(sorting)) max(sorting_variable(sorting))]);
 
 % saveas(1, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '_CMOS_FAR_Waterfall_Laser_On_Charge_Difference_Sorting'], 'png');
+%%
+saveas(1, '~/Dropbox/SeB/Papers/__In_Preparation__2014_Corde_Positron_plasma_wakes/Data Analysis/Calibration of Quadrupole Doublet Dispersion/E200_13540_CMOS_FAR_waterfall_Laser_On_y_maxs', 'png');
 
 
 
@@ -455,12 +478,15 @@ set(gcf,'color','w');
 set(gca,'fontsize',14);
 set(gcf,'paperposition',[0,0,10,8]);
 subplot(3,1,[1 2]);
-pcolor(1:sum(~laser_on),E_CMOS_FAR,log10(CMOS_FAR_SPECS(:,~laser_on))); shading flat; box off;
+% pcolor(1:sum(~laser_on),E_CMOS_FAR,log10(CMOS_FAR_SPECS(:,~laser_on))); shading flat; box off;
+pcolor(1:sum(~laser_on),1:2559,log10(CMOS_FAR_SPECS(:,~laser_on))); shading flat; box off;
 cb = colorbar();
-caxis([3.4 6.3]);
-set(cb, 'YTick', [0 1 2 3 4 5]);
-set(cb, 'YTickLabel', [1 10 100 1000 10000 100000]);
-xlabel('Imaging Energy Relative to 20.35 GeV [GeV] ','fontsize',14);
+% caxis([3.4 6.3]);
+caxis([5.5 6.9]);
+% caxis([3.5 log10(2^16)]);
+set(cb, 'YTick', [0 1 2 3 4 log10(2^16) 5 6 7]);
+set(cb, 'YTickLabel', [1 10 100 1000 10000 2^16 100000 1e6 1e7]);
+% xlabel('Imaging Energy Relative to 20.35 GeV (GeV) ','fontsize',14);
 % xlabel('Phase ramp','fontsize',14);
 XTick_position  = find(diff(step_num(~laser_on)))+1;
 set(gca, 'XTick', ([1 XTick_position]+[XTick_position length(step_num(~laser_on))])/2);
@@ -471,15 +497,19 @@ for i = 1:(n_step-1)
     line([XTick_position(i) XTick_position(i)],[E_CMOS_FAR(1) E_CMOS_FAR(end)],'color','k','linestyle','--');
 end
 
-ylabel('Energy [GeV]','fontsize',14);
+% ylabel('Energy [GeV]','fontsize',14);
 title(['Dataset ' dataset '. QS scan with CMOS FAR. Laser Off '],'fontsize',14);
 % title(['Dataset ' dataset '. Phase ramp scan with ELANEX.'],'fontsize',14);
 % ylim([E_CMOS_FAR(1) E_CMOS_FAR(end)]);
-ylim([E_CMOS_FAR(1) 30])
+% ylim([E_CMOS_FAR(1) 30])
+ylim([1520 1650])
 
 hold on
-plot((1:sum(~laser_on))+0.5,CMOS_FAR.ana.E_EMAX3(~laser_on),'mo', 'MarkerFaceColor', 'm');
-plot((1:sum(~laser_on))+0.5,CMOS_FAR.ana.E_EMIN3(~laser_on),'c^', 'MarkerFaceColor', 'c');
+% plot((1:sum(~laser_on))+0.5,CMOS_FAR.ana.E_EMAX3(~laser_on),'mo', 'MarkerFaceColor', 'm');
+% plot((1:sum(~laser_on))+0.5,CMOS_FAR.ana.E_EMIN3(~laser_on),'c^', 'MarkerFaceColor', 'c');
+plot((1:sum(~laser_on))+0.5,y(~laser_on),'ko', 'MarkerFaceColor', 'k');
+plot([1 1000],[1585 1585 ],'m-', 'linewidth', 2);
+plot([1 1000],[1595 1595 ],'m-', 'linewidth', 2);
 
 subplot(313);
 plot(PYRO.dat_common(~laser_on), 'o');
@@ -489,14 +519,15 @@ end
 box off;
 set(gca, 'XTick', ([1 XTick_position]+[XTick_position length(step_num(~laser_on))])/2);
 set(gca, 'XTickLabel', data.raw.metadata.param.dat{1}.PV_scan_list(unique(step_num(~laser_on))));
-xlabel('Imaging Energy Relative to 20.35 GeV [GeV] ','fontsize',14);
+% xlabel('Imaging Energy Relative to 20.35 GeV (GeV) ','fontsize',14);
 % xlabel('Phase ramp','fontsize',14);
-ylabel('Pyro [arb. u.]','fontsize',14);
+ylabel('Pyro (arb. u.)','fontsize',14);
 xlim([0 length(step_num(~laser_on))]);
 ylim(pyro_cut);
 
 % saveas(2, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '_CMOS_FAR_waterfall_Laser_Off'], 'png');
-
+%%
+saveas(2, '~/Dropbox/SeB/Papers/__In_Preparation__2014_Corde_Positron_plasma_wakes/Data Analysis/Calibration of Quadrupole Doublet Dispersion/E200_13450_CMOS_FAR_waterfall_Laser_Off_y_profs', 'png');
 
 
 
