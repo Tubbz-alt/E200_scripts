@@ -3,7 +3,7 @@
 
 % Sebastien Corde
 % Create: July 2014
-% Last edit: October 13, 2014
+% Last edit: October 18, 2014
 
 %%
 clear all;
@@ -13,13 +13,13 @@ clear all;
 %% Path and dataset
 
 % header = '';
-header = '/Volumes/PWFA_4big';
-% header = '~/PWFA_4big';
+% header = '/Volumes/PWFA_4big';
+header = '~/PWFA_4big';
 nas  ='/nas/nas-li20-pm00/';
 expt = 'E200';
 year = '/2014/';
 day  = '20140629/';
-dataset = '13539';
+dataset = '13537';
 pyro_cut = [100 20000];
 % pyro_cut = [13000 18000];
 laser_on_threshold = 0.5e7;
@@ -106,30 +106,30 @@ load(['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '.mat']);
 EPICS_UID = data.raw.scalars.PATT_SYS1_1_PULSEID.UID;
 CMOS_FAR = data.raw.images.CMOS_FAR;
 ELANEX = data.raw.images.ELANEX;
-% SYAG = data.raw.images.SYAG;
-% BETAL = data.raw.images.BETAL;
+SYAG = data.raw.images.SYAG;
+BETAL = data.raw.images.BETAL;
 E224_Probe = data.raw.images.E224_Probe;
-DS_GOLD = data.raw.images.DS_GOLD;
+% DS_GOLD = data.raw.images.DS_GOLD;
 
 PYRO = data.raw.scalars.BLEN_LI20_3014_BRAW;
 PYRO_CUT_UID = PYRO.UID(PYRO.dat>pyro_cut(1) & PYRO.dat<pyro_cut(2));
 
 COMMON_UID = intersect(EPICS_UID,CMOS_FAR.UID);
 COMMON_UID = intersect(COMMON_UID,ELANEX.UID);
-% COMMON_UID = intersect(COMMON_UID,SYAG.UID);
-% COMMON_UID = intersect(COMMON_UID,BETAL.UID);
+COMMON_UID = intersect(COMMON_UID,SYAG.UID);
+COMMON_UID = intersect(COMMON_UID,BETAL.UID);
 COMMON_UID = intersect(COMMON_UID,E224_Probe.UID);
-COMMON_UID = intersect(COMMON_UID,DS_GOLD.UID);
+% COMMON_UID = intersect(COMMON_UID,DS_GOLD.UID);
 COMMON_UID = intersect(COMMON_UID,PYRO_CUT_UID);
 n_common = numel(COMMON_UID);
 
 [~,~,EPICS_index] = intersect(COMMON_UID,data.raw.scalars.PATT_SYS1_1_PULSEID.UID);
 [~,~,CMOS_FAR_index] = intersect(COMMON_UID,CMOS_FAR.UID);
 [~,~,ELANEX_index] = intersect(COMMON_UID,ELANEX.UID);
-% [~,~,SYAG_index] = intersect(COMMON_UID,SYAG.UID);
-% [~,~,BETAL_index] = intersect(COMMON_UID,BETAL.UID);
+[~,~,SYAG_index] = intersect(COMMON_UID,SYAG.UID);
+[~,~,BETAL_index] = intersect(COMMON_UID,BETAL.UID);
 [~,~,E224_Probe_index] = intersect(COMMON_UID,E224_Probe.UID);
-[~,~,DS_GOLD_index] = intersect(COMMON_UID,DS_GOLD.UID);
+% [~,~,DS_GOLD_index] = intersect(COMMON_UID,DS_GOLD.UID);
 
 step_num       = data.raw.scalars.step_num.dat(EPICS_index);
 step_val       = data.raw.scalars.step_value.dat(EPICS_index);
@@ -140,10 +140,10 @@ PYRO.dat_common = data.raw.scalars.BLEN_LI20_3014_BRAW.dat(EPICS_index);
 CMOS_FAR.dat_common = CMOS_FAR.dat(CMOS_FAR_index);
 CMOS_FAR.UID_common = CMOS_FAR.UID(CMOS_FAR_index);
 ELANEX.dat_common = ELANEX.dat(ELANEX_index);
-% SYAG.dat_common = SYAG.dat(SYAG_index);
-% BETAL.dat_common = BETAL.dat(BETAL_index);
+SYAG.dat_common = SYAG.dat(SYAG_index);
+BETAL.dat_common = BETAL.dat(BETAL_index);
 E224_Probe.dat_common = E224_Probe.dat(E224_Probe_index);
-DS_GOLD.dat_common = DS_GOLD.dat(DS_GOLD_index);
+% DS_GOLD.dat_common = DS_GOLD.dat(DS_GOLD_index);
 
 USTORO = data.raw.scalars.GADC0_LI20_EX01_AI_CH2_;
 USTORO.dat_common = USTORO.dat(EPICS_index);
@@ -188,18 +188,19 @@ E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
 
 %% CMOS_FAR image analysis
 
+% mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/']);
 mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/laser_off_shots/']);
 mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/laser_on_shots/']);
 
 figure(3);
 set(gcf,'color','w');
-set(gcf,'paperposition',[0,0,18,8]);
+set(gcf,'paperposition',[0,0,24,8]);
 
-CMOS_FAR = image_ana_init(CMOS_FAR,0,cmos_far_roi,header);
+CMOS_FAR = image_ana_init(CMOS_FAR,1,cmos_far_roi,header);
 load('~/Dropbox/Data_Analysis/Backgrounds/CMOS_FAR_20140625_good_background.mat');
 CMOS_FAR.ana.bg.img = double(CMOS_FAR_20140625_good_background);
 for i=1:n_common
-    [CMOS_FAR, image] = image_ana(CMOS_FAR,1,cmos_far_roi,header,i);
+    [CMOS_FAR, image] = image_ana(CMOS_FAR,2,cmos_far_roi,header,i);
     E_CMOS_FAR = Energy_Axis(dataset, step_val(i));
     E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
     [CMOS_FAR, filt_img] = Ana_Energy(CMOS_FAR, E_CMOS_FAR, image, box_width, i);
@@ -207,44 +208,57 @@ for i=1:n_common
         image(image<1) = 1;
         filt_img(filt_img<1) = 1;
         figure(3); clf;
-        subplot(131);
+        subplot(141);
         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
+        pcolor(xx,E_CMOS_FAR,log10(image)); shading flat; colormap(cmap.wbgyr);
+%         pcolor(xx,1:2559,(image)); shading flat; colormap(cmap.wbgyr);
+        xlim([xx(1) xx(end-1)])
+        ylim([E_CMOS_FAR(1) 30])
+        caxis([1 4.5]);
+        xlabel('x (mm)', 'fontsize', 26);
+        ylabel('E (GeV)', 'fontsize', 26);
+        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
+        cb = colorbar();
+        set(cb, 'YTick', [0 1 2 3 4]);
+        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
+        set(gca, 'Fontsize', 20);
+        subplot(142);
         pcolor(xx,E_CMOS_FAR,(image)); shading flat; colormap(cmap.wbgyr);
 %         pcolor(xx,1:2559,(image)); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
         ylim([E_CMOS_FAR(1) 30])
+        caxis([0 5000]);
+        xlabel('x (mm)', 'fontsize', 26);
+        ylabel('E (GeV)', 'fontsize', 26);
+        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
+        cb = colorbar();
+        set(cb, 'YTick', [0 1 2 3 4]);
+        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
+        set(gca, 'Fontsize', 20);
+        subplot(143);
+        pcolor(xx,E_CMOS_FAR,(filt_img)); shading flat; colormap(cmap.wbgyr);
+        xlim([xx(1) xx(end-1)])
+        ylim([E_CMOS_FAR(1) 30])
         caxis([0 2500]);
         xlabel('x (mm)', 'fontsize', 26);
-%         ylabel('E (GeV)', 'fontsize', 26);
-%         title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
+        ylabel('E (GeV)', 'fontsize', 26);
+        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
 %         set(cb, 'YTick', [0 1 2 3 4]);
 %         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
-%         subplot(132);
-%         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
-%         pcolor(xx,E_CMOS_FAR,(filt_img)); shading flat; colormap(cmap.wbgyr);
-%         xlim([xx(1) xx(end-1)])
-%         ylim([E_CMOS_FAR(1) 30])
-%         caxis([0 2500]);
-%         xlabel('x (mm)', 'fontsize', 26);
-%         ylabel('E (GeV)', 'fontsize', 26);
-%         title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
-%         cb = colorbar();
-% %         set(cb, 'YTick', [0 1 2 3 4]);
-% %         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
-%         set(gca, 'Fontsize', 20);
-%         subplot(133);
-%         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
-%         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
-%         xlim([E_CMOS_FAR(1) 30]);
-%         ylim([-11 100]);
-%         xlabel('E (GeV)', 'fontsize', 26);
-%         ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
-%         set(gca, 'Fontsize', 20);
-%         legend({'Full Box', ['Small Box (' num2str(box_width) ' pix wide)']}, 'location', 'Northwest', 'fontsize', 18);
+        subplot(144);
+        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
+        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
+        xlim([E_CMOS_FAR(1) 30]);
+        ylim([-11 100]);
+        xlabel('E (GeV)', 'fontsize', 26);
+        ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
+        set(gca, 'Fontsize', 20);
+        legend({'Full Box', ['Small Box (' num2str(box_width) ' pix wide)']}, 'location', 'Northwest', 'fontsize', 18);
         if laser_on(i); string = 'laser_on'; else string = 'laser_off'; end;
-        saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' string '_shots/' expt '_' dataset '_CMOS_FAR_' string '_Shot_' num2str(CMOS_FAR.UID_common(i),'%d') '_lin_scale'], 'png');
+        saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' string '_shots/' expt '_' dataset '_CMOS_FAR_' string '_Shot_' num2str(CMOS_FAR.UID_common(i),'%d')], 'png');
+%         saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/' expt '_' dataset '_CMOS_FAR_Shot_' num2str(CMOS_FAR.UID_common(i),'%d')], 'png');
     end
 end
 

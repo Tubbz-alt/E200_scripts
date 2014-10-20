@@ -1,5 +1,14 @@
 function [im_struct, image] = image_ana(im_struct,use_bg,roi,header,i)
 
+    function bg_average = Background_Error(p)
+        tmp = image - p*bg;
+%         tmp_2 = tmp;
+%         tmp_2(roi.mask) = 0;
+%         figure(20); imagesc(tmp_2); colorbar(); caxis([0 2^12]);
+        bg_average = mean(tmp(roi.mask))^2;
+    end
+
+
 display(i);
 
 image = double(imread([header im_struct.dat_common{i}]));
@@ -7,10 +16,28 @@ image = double(imread([header im_struct.dat_common{i}]));
 if roi.rot; image = rot90(image,roi.rot); end;
 if roi.fliplr; image = fliplr(image); end;
 if roi.flipud; image = flipud(image); end;
-if use_bg==1; image = image - 2.027*rot90(double(im_struct.ana.bg.img),2); end;
-if use_bg==2; image = image - double(im_struct.ana.bg.img); end;
 
 image = image(roi.top:roi.bottom,roi.left:roi.right);
+if use_bg==1
+    bg = rot90(double(im_struct.ana.bg.img),2);
+    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
+    p = 2;
+%     p = 2.027;  % good for E200_13450 Shot 1345000050032
+elseif use_bg==2
+    bg = double(im_struct.ana.bg.img);
+    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
+    p = 1;
+elseif use_bg==3
+    bg = rot90(double(im_struct.ana.bg.img),2);
+    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
+    options = optimset('MaxFunEval', 1e4);
+    p = fminsearch(@Background_Error, 2, options);
+else
+    bg = 0;
+    p = 0;
+end
+image = image - p*bg;
+im_struct.ana.bg.p(i) = p;
 
 x_prof = sum(image);
 y_prof = sum(image,2);
@@ -40,3 +67,9 @@ im_struct.ana.x_maxs(:,i) = max(image,[],1);
 im_struct.ana.y_maxs(:,i) = max(image,[],2);
 
 im_struct.ana.sum(i) = sum(image(:));
+
+
+
+end
+
+

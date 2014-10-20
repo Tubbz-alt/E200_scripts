@@ -36,6 +36,7 @@ im_struct.ana.Q_unaffected = zeros(1,ntotal);
 im_struct.ana.eloss = zeros(1,ntotal);
 im_struct.ana.egain = zeros(1,ntotal);
 im_struct.ana.efficiency = zeros(1,ntotal);
+im_struct.ana.bg.p = zeros(1,ntotal);
 
 
 im_struct.ana.roi = roi;
