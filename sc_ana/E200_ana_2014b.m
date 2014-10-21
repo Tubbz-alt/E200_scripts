@@ -45,6 +45,9 @@ end
 pix_E0 = 1593;  % Good for 20140625 E200_13445 to E200_13449, all QS
 % pix_E0 = 1600;  % Good for 20140629 E200_13537 (to be verified with more Interaction Off shots)
 
+% Charge calibration for CMOS FAR
+cmos_far_charge_calib = 66; % in number of e-/e+ per count
+
 % ROI for CMOS FAR
 cmos_far_roi.top = 1;
 cmos_far_roi.bottom = 2559;
@@ -66,6 +69,14 @@ cmos_far_roi.flipud = 0;
 
 box_width = 100;
 
+box.top = 100;      % For E200_13537
+box.bottom = 2559;  % For E200_13537
+box.left = 1;     % For E200_13537
+box.right = 640;    % For E200_13537
+
+cmos_far_roi.mask = ones(cmos_far_roi.bottom-cmos_far_roi.top+1, cmos_far_roi.right-cmos_far_roi.left+1);
+cmos_far_roi.mask(box.top:box.bottom,box.left:box.right) = 0;
+cmos_far_roi.mask = cmos_far_roi.mask==1;
 
 
 %% ELANEX settings
@@ -198,11 +209,12 @@ set(gcf,'paperposition',[0,0,24,8]);
 
 CMOS_FAR = image_ana_init(CMOS_FAR,1,cmos_far_roi,header);
 load('~/Dropbox/Data_Analysis/Backgrounds/CMOS_FAR_20140625_good_background.mat');
-CMOS_FAR.ana.bg.img = double(CMOS_FAR_20140625_good_background);
+% CMOS_FAR.ana.bg.img = double(CMOS_FAR_20140625_good_background);
 for i=1:n_common
     [CMOS_FAR, image] = image_ana(CMOS_FAR,2,cmos_far_roi,header,i);
     E_CMOS_FAR = Energy_Axis(dataset, step_val(i));
     E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
+    CMOS_FAR.ana.charge_calib = cmos_far_charge_calib;
     [CMOS_FAR, filt_img] = Ana_Energy(CMOS_FAR, E_CMOS_FAR, image, box_width, i);
     if do_save_image;
         image(image<1) = 1;
@@ -210,48 +222,45 @@ for i=1:n_common
         figure(3); clf;
         subplot(141);
         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
-        pcolor(xx,E_CMOS_FAR,log10(image)); shading flat; colormap(cmap.wbgyr);
-%         pcolor(xx,1:2559,(image)); shading flat; colormap(cmap.wbgyr);
+%         pcolor(xx,E_CMOS_FAR,log10(image)); shading flat; colormap(cmap.wbgyr);
+        pcolor(xx,1:cmos_far_roi.bottom,log10(image)); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
-        ylim([E_CMOS_FAR(1) 30])
+%         ylim([E_CMOS_FAR(1) 30])
         caxis([1 4.5]);
         xlabel('x (mm)', 'fontsize', 26);
         ylabel('E (GeV)', 'fontsize', 26);
-        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
         set(cb, 'YTick', [0 1 2 3 4]);
         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
         subplot(142);
-        pcolor(xx,E_CMOS_FAR,(image)); shading flat; colormap(cmap.wbgyr);
-%         pcolor(xx,1:2559,(image)); shading flat; colormap(cmap.wbgyr);
+%         pcolor(xx,E_CMOS_FAR,image); shading flat; colormap(cmap.wbgyr);
+        pcolor(xx,1:cmos_far_roi.bottom,image); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
-        ylim([E_CMOS_FAR(1) 30])
+%         ylim([E_CMOS_FAR(1) 30])
         caxis([0 5000]);
         xlabel('x (mm)', 'fontsize', 26);
         ylabel('E (GeV)', 'fontsize', 26);
         title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
-        set(cb, 'YTick', [0 1 2 3 4]);
-        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
         subplot(143);
-        pcolor(xx,E_CMOS_FAR,(filt_img)); shading flat; colormap(cmap.wbgyr);
+%         pcolor(xx,E_CMOS_FAR,log10(filt_img)); shading flat; colormap(cmap.wbgyr);
+        pcolor(xx,1:cmos_far_roi.bottom,log10(filt_img)); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
-        ylim([E_CMOS_FAR(1) 30])
-        caxis([0 2500]);
+%         ylim([E_CMOS_FAR(1) 30])
+        caxis([1 4.5]);
         xlabel('x (mm)', 'fontsize', 26);
         ylabel('E (GeV)', 'fontsize', 26);
-        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
-%         set(cb, 'YTick', [0 1 2 3 4]);
-%         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
+        set(cb, 'YTick', [0 1 2 3 4]);
+        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
         subplot(144);
         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
         xlim([E_CMOS_FAR(1) 30]);
-        ylim([-11 100]);
+        ylim([-11 150]);
         xlabel('E (GeV)', 'fontsize', 26);
         ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
         set(gca, 'Fontsize', 20);

@@ -1,11 +1,22 @@
 function [im_struct, image] = image_ana(im_struct,use_bg,roi,header,i)
 
+x1 = linspace(-2^16,2^16,20000);
+dx1 = x1(2)-x1(1);
+
     function bg_average = Background_Error(p)
         tmp = image - p*bg;
-%         tmp_2 = tmp;
-%         tmp_2(roi.mask) = 0;
-%         figure(20); imagesc(tmp_2); colorbar(); caxis([0 2^12]);
-        bg_average = mean(tmp(roi.mask))^2;
+%         tmp(roi.mask==0) = -1e6;
+        tmp_2 = tmp(roi.mask==1);
+        %     numel(tmp_2)
+        %     N_bg(i)
+        noise = hist(tmp_2, x1)/dx1;
+        p = gaussFit(x1, noise, [50, 0, 100, 0]);
+        bg_average = p(2)^2;
+        
+        %         tmp_2 = tmp;
+        %         tmp_2(roi.mask) = 0;
+        %         figure(20); imagesc(tmp_2); colorbar(); caxis([0 2^12]);
+        %         bg_average = mean(tmp(roi.mask))^2;
     end
 
 
@@ -24,14 +35,19 @@ if use_bg==1
     p = 2;
 %     p = 2.027;  % good for E200_13450 Shot 1345000050032
 elseif use_bg==2
-    bg = double(im_struct.ana.bg.img);
-    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
-    p = 1;
-elseif use_bg==3
     bg = rot90(double(im_struct.ana.bg.img),2);
     bg = bg(roi.top:roi.bottom,roi.left:roi.right);
     options = optimset('MaxFunEval', 1e4);
     p = fminsearch(@Background_Error, 2, options);
+elseif use_bg==3
+    bg = double(im_struct.ana.bg.img);
+    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
+    p = 1;
+elseif use_bg==4
+    bg = double(im_struct.ana.bg.img);
+    bg = bg(roi.top:roi.bottom,roi.left:roi.right);
+    options = optimset('MaxFunEval', 1e4);
+    p = fminsearch(@Background_Error, 1, options);    
 else
     bg = 0;
     p = 0;
