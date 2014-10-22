@@ -18,8 +18,8 @@ header = '~/PWFA_4big';
 nas  ='/nas/nas-li20-pm00/';
 expt = 'E200';
 year = '/2014/';
-day  = '20140629/';
-dataset = '13537';
+day  = '20140625/';
+dataset = '13449';
 pyro_cut = [100 20000];
 % pyro_cut = [13000 18000];
 laser_on_threshold = 0.5e7;
@@ -69,14 +69,15 @@ cmos_far_roi.flipud = 0;
 
 box_width = 100;
 
-box.top = 100;      % For E200_13537
-box.bottom = 2559;  % For E200_13537
-box.left = 1;     % For E200_13537
-box.right = 640;    % For E200_13537
+mask.top = 100;      % For E200_13537
+mask.bottom = 2559;  % For E200_13537
+mask.left = 1;       % For E200_13537
+mask.right = 640;    % For E200_13537
 
 cmos_far_roi.mask = ones(cmos_far_roi.bottom-cmos_far_roi.top+1, cmos_far_roi.right-cmos_far_roi.left+1);
-cmos_far_roi.mask(box.top:box.bottom,box.left:box.right) = 0;
+cmos_far_roi.mask(mask.top:mask.bottom,mask.left:mask.right) = 0;
 cmos_far_roi.mask = cmos_far_roi.mask==1;
+
 
 
 %% ELANEX settings
@@ -107,8 +108,27 @@ load([header data_path]);
 
 
 
+%% CMOS FAR Image Filtering
+full_roi = cmos_far_roi;
+full_roi.top = 1; 
+full_roi.bottom = 2559;
+full_roi.left = 1;
+full_roi.right = 780;
+CMOS_FAR = data.raw.images.CMOS_FAR;
+CMOS_FAR.dat_common = CMOS_FAR.dat;
+CMOS_FAR = image_ana_init(CMOS_FAR,1,full_roi,header);
+for i=1:numel(CMOS_FAR.dat)
+    [~, image] = image_ana(CMOS_FAR,1,full_roi,header,i);
+    img = medfilt2_sc(image,5,13);
+    save([header CMOS_FAR.dat{i}(1:end-4) '_medfilt'], 'img');
+    img = filter2(ones(15,40)/(15*40), img);
+    save([header CMOS_FAR.dat{i}(1:end-4) '_meanfilt'], 'img');
+end
+
+
+
 %% Load post-processed data
-load(['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '.mat']);
+load(['~/Dropbox/Data_Analysis/' expt '_' dataset '_ana_oct01/' expt '_' dataset '.mat']);
 
 
 
@@ -178,15 +198,13 @@ laser_on = laser_on_E224 > laser_on_threshold;
 
 %% Determine laser on/off with DS_GOLD
 
-% laser_on_DS_GOLD = zeros(1,n_common);
-% for i=1:n_common
-%     if isempty(DS_GOLD.dat_common{i}); continue; end;
-%     laser_on_DS_GOLD(i) = sum(sum(imread([header DS_GOLD.dat_common{i}])));
-% end;
-% laser_on = laser_on_DS_GOLD > laser_on_threshold;
-% 
-% n_ON = sum(laser_on);
-% n_OFF = n_common - n_ON;
+laser_on_DS_GOLD = zeros(1,n_common);
+for i=1:n_common
+    if isempty(DS_GOLD.dat_common{i}); continue; end;
+    laser_on_DS_GOLD(i) = sum(sum(imread([header DS_GOLD.dat_common{i}])));
+end;
+laser_on = laser_on_DS_GOLD > laser_on_threshold;
+
 
 
 %% Energy axis for CMOS FAR
@@ -197,7 +215,7 @@ E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
 
 
 
-%% CMOS_FAR image analysis
+%% CMOS_FAR Image Analysis
 
 % mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/']);
 mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/laser_off_shots/']);

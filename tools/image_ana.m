@@ -5,14 +5,9 @@ dx1 = x1(2)-x1(1);
 
     function bg_average = Background_Error(p)
         tmp = image - p*bg;
-%         tmp(roi.mask==0) = -1e6;
-        tmp_2 = tmp(roi.mask==1);
-        %     numel(tmp_2)
-        %     N_bg(i)
-        noise = hist(tmp_2, x1)/dx1;
+        noise = hist(tmp(roi.mask==1), x1)/dx1;
         p = gaussFit(x1, noise, [50, 0, 100, 0]);
         bg_average = p(2)^2;
-        
         %         tmp_2 = tmp;
         %         tmp_2(roi.mask) = 0;
         %         figure(20); imagesc(tmp_2); colorbar(); caxis([0 2^12]);
