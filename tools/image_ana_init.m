@@ -1,6 +1,9 @@
 function im_struct = image_ana_init(im_struct,use_bg,roi,header)
 
-if use_bg; im_struct.ana.bg = load([header im_struct.background_dat{1}]); end;
+if use_bg
+    im_struct.ana.bg = load([header im_struct.background_dat{1}]);
+    im_struct.ana.bg.img = double(im_struct.ana.bg.img);
+end
 
 nv = roi.bottom - roi.top + 1;
 nh = roi.right - roi.left + 1;
@@ -13,8 +16,11 @@ ntotal = numel(im_struct.dat_common);
 im_struct.ana.x_profs = zeros(nh,ntotal);
 im_struct.ana.y_profs = zeros(nv,ntotal);
 im_struct.ana.y_profs_small_box = zeros(nv,ntotal);
+im_struct.ana.energy_axis = zeros(nv,ntotal);
+im_struct.ana.dE = zeros(nv,ntotal);
 im_struct.ana.energy_spectrum = zeros(nv,ntotal);
 im_struct.ana.energy_spectrum_2 = zeros(nv,ntotal);
+im_struct.ana.energy_spectrum_3 = zeros(nv,ntotal);
 im_struct.ana.x_maxs = zeros(nh,ntotal);
 im_struct.ana.y_maxs = zeros(nv,ntotal);
 im_struct.ana.x_max = zeros(1,ntotal);
@@ -36,6 +42,13 @@ im_struct.ana.Q_unaffected = zeros(1,ntotal);
 im_struct.ana.eloss = zeros(1,ntotal);
 im_struct.ana.egain = zeros(1,ntotal);
 im_struct.ana.efficiency = zeros(1,ntotal);
+im_struct.ana.norm_emittance = zeros(1,ntotal);
+im_struct.ana.beta_star = zeros(1,ntotal);
+im_struct.ana.s_star = zeros(1,ntotal);
+im_struct.ana.beam_size = zeros(1,ntotal);
+im_struct.ana.beam_divergence = zeros(1,ntotal);
+im_struct.ana.pinch_spot_size = zeros(1,ntotal);
+im_struct.ana.pinch_energy = zeros(1,ntotal);
 im_struct.ana.bg.p = zeros(1,ntotal);
 
 

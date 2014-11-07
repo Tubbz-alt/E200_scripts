@@ -8,8 +8,8 @@
 %% Define data set and paths
 
 user = 'corde';
-prefix = '~/PWFA_4big';
-% prefix = '/Volumes/PWFA_4big';
+header = '~/PWFA_4big';
+% header = '/Volumes/PWFA_4big';
 day = '20140629';
 experiment = 'E200';
 data_set_num = 13537;
@@ -33,14 +33,14 @@ pyro_cut = [0 20000]; % for Waterfall Plot
 
 %% Load data
 
-if ~exist(prefix,'dir')
-    system(['mkdir ' prefix]);
-    system(['/usr/local/bin/sshfs ' user '@quickpicmac3.slac.stanford.edu:/Volumes/PWFA_4big/' ' ' prefix]);
+if ~exist(header,'dir')
+    system(['mkdir ' header]);
+    system(['/usr/local/bin/sshfs ' user '@quickpicmac3.slac.stanford.edu:/Volumes/PWFA_4big/' ' ' header]);
     pause(2);
 end
 
 %%
-load([prefix '/nas/nas-li20-pm00/E200/2014/' day '/' data_set '/' data_set '.mat']);
+load([header '/nas/nas-li20-pm00/E200/2014/' day '/' data_set '/' data_set '.mat']);
 
 
 %%
@@ -79,11 +79,11 @@ n_common = numel(COMMON_UID);
 [~, ~, ELANEX_index] = intersect(COMMON_UID, ELANEX.UID);
 
 % Load camera background images
-tmp = load([prefix '/' CMOS_FAR.background_dat{1}]);
+tmp = load([header '/' CMOS_FAR.background_dat{1}]);
 CMOS_FAR.back = tmp.img;
-tmp = load([prefix '/' SYAG.background_dat{1}]);
+tmp = load([header '/' SYAG.background_dat{1}]);
 SYAG.back = tmp.img;
-tmp = load([prefix '/' ELANEX.background_dat{1}]);
+tmp = load([header '/' ELANEX.background_dat{1}]);
 ELANEX.back = tmp.img;
 
 PYRO = data.raw.scalars.BLEN_LI20_3014_BRAW.dat(EPICS_index);
@@ -125,19 +125,20 @@ set(fig, 'PaperPosition', [0.25, 2.5, 13, 12]);
 set(fig, 'color', 'w');
 clf();
 
-
+k = 0;
 for i=1:n_common
+% for i=list_bad
     % i=3;
 %     if is_qsbend_scan; B5D36 = 20.35 + scan_info(i).Control_PV; end;
     
     if is_QS_PEXT_scan; E_ELANEX = get_ELANEX_axis(QS(i)); end;
 
-    SYAG.img = double(imread([prefix '/' SYAG.dat{SYAG_index(i)}]))-double(SYAG.back);
+    SYAG.img = double(imread([header '/' SYAG.dat{SYAG_index(i)}]))-double(SYAG.back);
     SYAG.img2 = SYAG.img;
     SYAG.img2(SYAG.img<1) = 1;
     waterfall.SYAG(:,i) = sum(SYAG.img(750:800,180:1150),1);
     
-    CMOS_FAR.img = rot90(double(imread([prefix '/' CMOS_FAR.dat{CMOS_FAR_index(i)}])))-double(CMOS_FAR.back);
+    CMOS_FAR.img = rot90(double(imread([header '/' CMOS_FAR.dat{CMOS_FAR_index(i)}])))-double(CMOS_FAR.back);
     CMOS_FAR.img = CMOS_FAR.img - mean(mean(CMOS_FAR.img(2300:2400, 100:200)));
     waterfall.CMOS_FAR(:,i) = sum(CMOS_FAR.img(E_CMOS_FAR<E_range(2) & E_CMOS_FAR>E_range(1),x_range(1):x_range(2)),2);
     CMOS_FAR.img2 = CMOS_FAR.img;
@@ -148,13 +149,13 @@ for i=1:n_common
     [~,tmp] = max(conv(x_prof,ones(1,10)/10.,'same'));
     CMOS_FAR.Transverse_Position2(i) = x_range(1)-100+tmp;
     
-    ELANEX.img = double(imread([prefix '/' ELANEX.dat{ELANEX_index(i)}]))-double(ELANEX.back);
+    ELANEX.img = double(imread([header '/' ELANEX.dat{ELANEX_index(i)}]))-double(ELANEX.back);
     ELANEX.img2 = ELANEX.img;
     ELANEX.img2(ELANEX.img<1) = 1;
     waterfall.ELANEX(:,i) = sum(ELANEX.img,2);
       
   
-    if i==1
+    if k==0
         figure(1)
         h_text = axes('Position', [0.3, 0.95, 0.2, 0.035], 'Visible', 'off');
 %         if is_scan; STEP = text(0., 1., [char(regexprep(scan_info(i).Control_PV_name, '_', '\\_')) ' = ' num2str(scan_info(i).Control_PV)], 'fontsize', 20); end;
@@ -187,7 +188,7 @@ for i=1:n_common
         xlabel('Electron energy (GeV)', 'fontsize', fs+10);
 
         axes('position', [0.1, 0.64, 0.8, 0.2]);
-        image(fliplr(SYAG.img2(600:end,180:1150)), 'CDataMapping', 'scaled');
+        imagesc(fliplr(SYAG.img2(600:end,180:1150)), 'CDataMapping', 'scaled');
         colormap(cmap.wbgyr);
         colorbar();
         fig_SYAG = get(gca,'Children');
@@ -205,7 +206,7 @@ for i=1:n_common
         caxis(ELANEX_caxis);
 %         daspect([1 1 1]);
         set(gca, 'fontsize', fs);
-        title('ELANEX');
+        title('ELANEX ');
         ylabel('Electron energy (GeV)', 'fontsize', fs);
 
         
@@ -226,7 +227,7 @@ for i=1:n_common
     end
 
 
-    
+    k = k+1;
 end
 
 %% Saving

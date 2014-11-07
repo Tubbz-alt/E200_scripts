@@ -1,11 +1,12 @@
-function [im_struct, image] = image_ana(im_struct,use_bg,roi,header,i)
+function [im_struct, image] = image_ana(im_struct,use_bg,header,i)
 
-x1 = linspace(-2^16,2^16,20000);
-dx1 = x1(2)-x1(1);
+roi = im_struct.ana.roi;
+
+x1 = linspace(-2^16,2^16,20000); dx1 = x1(2)-x1(1);
 
     function bg_average = Background_Error(p)
         tmp = image - p*bg;
-        noise = hist(tmp(roi.mask==1), x1)/dx1;
+        noise = hist(tmp(roi.mask), x1)/dx1;
         p = gaussFit(x1, noise, [50, 0, 100, 0]);
         bg_average = p(2)^2;
         %         tmp_2 = tmp;

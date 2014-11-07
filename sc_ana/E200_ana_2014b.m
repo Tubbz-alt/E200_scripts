@@ -6,6 +6,7 @@
 % Last edit: October 18, 2014
 
 %%
+close('all');
 clear all;
 
 
@@ -18,8 +19,8 @@ header = '~/PWFA_4big';
 nas  ='/nas/nas-li20-pm00/';
 expt = 'E200';
 year = '/2014/';
-day  = '20140625/';
-dataset = '13449';
+day  = '20140629/';
+dataset = '13537';
 pyro_cut = [100 20000];
 % pyro_cut = [13000 18000];
 laser_on_threshold = 0.5e7;
@@ -34,23 +35,14 @@ addpath('~/Dropbox/SeB/Papers/__In_Preparation__2014_Corde_High_Gradient_Positro
 %% CMOS FAR settings
 
 % Pixel position of 20.35 GeV beam on CMOS FAR
-if( str2num(day(1:8)) > 20140521 )
-    pix_E0 = 1597; % after 2014 QS quad move
-else
-    pix_E0 = 1623; % before 2014 QS quad move
-end
-% pix_E0 = 1572;  % Overwrite expected position
-% pix_E0 = 1589;  % Good for 20140625 E200_13450 QS = 0
-% pix_E0 = 1572;  % Good for 20140625 E200_13450 QS = 4.5
-pix_E0 = 1593;  % Good for 20140625 E200_13445 to E200_13449, all QS
-% pix_E0 = 1600;  % Good for 20140629 E200_13537 (to be verified with more Interaction Off shots)
+pix_E0 = 1590;
 
 % Charge calibration for CMOS FAR
 cmos_far_charge_calib = 66; % in number of e-/e+ per count
 
 % ROI for CMOS FAR
 cmos_far_roi.top = 1;
-cmos_far_roi.bottom = 2559;
+cmos_far_roi.bottom = 2400;
 cmos_far_roi.left = 71;
 cmos_far_roi.right = 710;
 % cmos_far_roi.left = 335-250; % Good for 20140625 E200_13445
@@ -67,10 +59,10 @@ cmos_far_roi.rot = 1;
 cmos_far_roi.fliplr = 0;
 cmos_far_roi.flipud = 0;
 
-box_width = 100;
+cmos_far_roi.box_width = 300;
 
 mask.top = 100;      % For E200_13537
-mask.bottom = 2559;  % For E200_13537
+mask.bottom = 2400;  % For E200_13537
 mask.left = 1;       % For E200_13537
 mask.right = 640;    % For E200_13537
 
@@ -82,13 +74,14 @@ cmos_far_roi.mask = cmos_far_roi.mask==1;
 
 %% ELANEX settings
 
+% ROI for ELANEX
 elanex_roi.top = 1;
 elanex_roi.bottom = 734;
 elanex_roi.left = 1;
 elanex_roi.right = 1292;
 elanex_roi.rot = 0;
 elanex_roi.fliplr = 0;
-elanex_roi.flipud = 0;
+elanex_roi.flipud = 1;
 
 
 
@@ -118,7 +111,7 @@ CMOS_FAR = data.raw.images.CMOS_FAR;
 CMOS_FAR.dat_common = CMOS_FAR.dat;
 CMOS_FAR = image_ana_init(CMOS_FAR,1,full_roi,header);
 for i=1:numel(CMOS_FAR.dat)
-    [~, image] = image_ana(CMOS_FAR,1,full_roi,header,i);
+    [~, image] = image_ana(CMOS_FAR,1,header,i);
     img = medfilt2_sc(image,5,13);
     save([header CMOS_FAR.dat{i}(1:end-4) '_medfilt'], 'img');
     img = filter2(ones(15,40)/(15*40), img);
@@ -137,18 +130,20 @@ load(['~/Dropbox/Data_Analysis/' expt '_' dataset '_ana_oct01/' expt '_' dataset
 EPICS_UID = data.raw.scalars.PATT_SYS1_1_PULSEID.UID;
 CMOS_FAR = data.raw.images.CMOS_FAR;
 ELANEX = data.raw.images.ELANEX;
-SYAG = data.raw.images.SYAG;
-BETAL = data.raw.images.BETAL;
+% SYAG = data.raw.images.SYAG;
+% BETAL = data.raw.images.BETAL;
 E224_Probe = data.raw.images.E224_Probe;
 % DS_GOLD = data.raw.images.DS_GOLD;
 
 PYRO = data.raw.scalars.BLEN_LI20_3014_BRAW;
 PYRO_CUT_UID = PYRO.UID(PYRO.dat>pyro_cut(1) & PYRO.dat<pyro_cut(2));
 
+% COMMON_UID = intersect(EPICS_UID,ELANEX.UID);
+
 COMMON_UID = intersect(EPICS_UID,CMOS_FAR.UID);
 COMMON_UID = intersect(COMMON_UID,ELANEX.UID);
-COMMON_UID = intersect(COMMON_UID,SYAG.UID);
-COMMON_UID = intersect(COMMON_UID,BETAL.UID);
+% COMMON_UID = intersect(COMMON_UID,SYAG.UID);
+% COMMON_UID = intersect(COMMON_UID,BETAL.UID);
 COMMON_UID = intersect(COMMON_UID,E224_Probe.UID);
 % COMMON_UID = intersect(COMMON_UID,DS_GOLD.UID);
 COMMON_UID = intersect(COMMON_UID,PYRO_CUT_UID);
@@ -157,8 +152,8 @@ n_common = numel(COMMON_UID);
 [~,~,EPICS_index] = intersect(COMMON_UID,data.raw.scalars.PATT_SYS1_1_PULSEID.UID);
 [~,~,CMOS_FAR_index] = intersect(COMMON_UID,CMOS_FAR.UID);
 [~,~,ELANEX_index] = intersect(COMMON_UID,ELANEX.UID);
-[~,~,SYAG_index] = intersect(COMMON_UID,SYAG.UID);
-[~,~,BETAL_index] = intersect(COMMON_UID,BETAL.UID);
+% [~,~,SYAG_index] = intersect(COMMON_UID,SYAG.UID);
+% [~,~,BETAL_index] = intersect(COMMON_UID,BETAL.UID);
 [~,~,E224_Probe_index] = intersect(COMMON_UID,E224_Probe.UID);
 % [~,~,DS_GOLD_index] = intersect(COMMON_UID,DS_GOLD.UID);
 
@@ -171,10 +166,15 @@ PYRO.dat_common = data.raw.scalars.BLEN_LI20_3014_BRAW.dat(EPICS_index);
 CMOS_FAR.dat_common = CMOS_FAR.dat(CMOS_FAR_index);
 CMOS_FAR.UID_common = CMOS_FAR.UID(CMOS_FAR_index);
 ELANEX.dat_common = ELANEX.dat(ELANEX_index);
-SYAG.dat_common = SYAG.dat(SYAG_index);
-BETAL.dat_common = BETAL.dat(BETAL_index);
+ELANEX.UID_common = ELANEX.UID(ELANEX_index);
+% SYAG.dat_common = SYAG.dat(SYAG_index);
+% SYAG.UID_common = SYAG.UID(SYAG_index);
+% BETAL.dat_common = BETAL.dat(BETAL_index);
+% BETAL.UID_common = BETAL.UID(BETAL_index);
 E224_Probe.dat_common = E224_Probe.dat(E224_Probe_index);
+E224_Probe.UID_common = E224_Probe.UID(E224_Probe_index);
 % DS_GOLD.dat_common = DS_GOLD.dat(DS_GOLD_index);
+% DS_GOLD.UID_common = DS_GOLD.UID(DS_GOLD_index);
 
 USTORO = data.raw.scalars.GADC0_LI20_EX01_AI_CH2_;
 USTORO.dat_common = USTORO.dat(EPICS_index);
@@ -210,63 +210,58 @@ laser_on = laser_on_DS_GOLD > laser_on_threshold;
 %% Energy axis for CMOS FAR
 
 B5D36 = getB5D36(data.raw.metadata.E200_state.dat{1});
-E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.0398, 5.73e-3, B5D36);
+E_CMOS_FAR = E200_Eaxis_ana(1:2559, pix_E0, 62.65e-6,  2016.04, 5.73e-3, B5D36);
 E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
 
 
 
 %% CMOS_FAR Image Analysis
 
-% mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/']);
 mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/laser_off_shots/']);
 mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/laser_on_shots/']);
+% mkdir(['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/']);
 
 figure(3);
 set(gcf,'color','w');
-set(gcf,'paperposition',[0,0,24,8]);
+set(gcf,'paperposition',[0,0,28,8]);
 
 CMOS_FAR = image_ana_init(CMOS_FAR,1,cmos_far_roi,header);
-load('~/Dropbox/Data_Analysis/Backgrounds/CMOS_FAR_20140625_good_background.mat');
+CMOS_FAR.ana.charge_calib = cmos_far_charge_calib;
+% load('~/Dropbox/Data_Analysis/Backgrounds/CMOS_FAR_20140625_good_background.mat');
 % CMOS_FAR.ana.bg.img = double(CMOS_FAR_20140625_good_background);
+
+%%
 for i=1:n_common
-    [CMOS_FAR, image] = image_ana(CMOS_FAR,2,cmos_far_roi,header,i);
+% for i = list
+    tmp = load([header CMOS_FAR.dat_common{i}(1:end-4) '_meanfilt']);
+    filt_img = tmp.img(CMOS_FAR.ana.roi.top:CMOS_FAR.ana.roi.bottom,CMOS_FAR.ana.roi.left:CMOS_FAR.ana.roi.right);
     E_CMOS_FAR = Energy_Axis(dataset, step_val(i));
-    E_CMOS_FAR = E_CMOS_FAR(cmos_far_roi.top:cmos_far_roi.bottom);
-    CMOS_FAR.ana.charge_calib = cmos_far_charge_calib;
-    [CMOS_FAR, filt_img] = Ana_Energy(CMOS_FAR, E_CMOS_FAR, image, box_width, i);
+    E_CMOS_FAR = E_CMOS_FAR(CMOS_FAR.ana.roi.top:CMOS_FAR.ana.roi.bottom);
+    [CMOS_FAR, filt_img, filt_img2] = Ana_Energy(CMOS_FAR, E_CMOS_FAR, filt_img, i);
+    display(i);
     if do_save_image;
+        tmp = load([header CMOS_FAR.dat_common{i}(1:end-4) '_medfilt']);
+        image = tmp.img(CMOS_FAR.ana.roi.top:CMOS_FAR.ana.roi.bottom,CMOS_FAR.ana.roi.left:CMOS_FAR.ana.roi.right);
         image(image<1) = 1;
         filt_img(filt_img<1) = 1;
-        figure(3); clf;
-        subplot(141);
         xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(i)*1e-3;
-%         pcolor(xx,E_CMOS_FAR,log10(image)); shading flat; colormap(cmap.wbgyr);
-        pcolor(xx,1:cmos_far_roi.bottom,log10(image)); shading flat; colormap(cmap.wbgyr);
+
+        figure(3); clf;
+        
+        subplot(2,5,[1 6]);
+        pcolor(xx,E_CMOS_FAR,image); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
-%         ylim([E_CMOS_FAR(1) 30])
-        caxis([1 4.5]);
-        xlabel('x (mm)', 'fontsize', 26);
-        ylabel('E (GeV)', 'fontsize', 26);
-        cb = colorbar();
-        set(cb, 'YTick', [0 1 2 3 4]);
-        set(cb, 'YTickLabel', [1 10 100 1000 10000]);
-        set(gca, 'Fontsize', 20);
-        subplot(142);
-%         pcolor(xx,E_CMOS_FAR,image); shading flat; colormap(cmap.wbgyr);
-        pcolor(xx,1:cmos_far_roi.bottom,image); shading flat; colormap(cmap.wbgyr);
-        xlim([xx(1) xx(end-1)])
-%         ylim([E_CMOS_FAR(1) 30])
+        ylim([E_CMOS_FAR(1) 30])
         caxis([0 5000]);
         xlabel('x (mm)', 'fontsize', 26);
         ylabel('E (GeV)', 'fontsize', 26);
-        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
         cb = colorbar();
         set(gca, 'Fontsize', 20);
-        subplot(143);
-%         pcolor(xx,E_CMOS_FAR,log10(filt_img)); shading flat; colormap(cmap.wbgyr);
-        pcolor(xx,1:cmos_far_roi.bottom,log10(filt_img)); shading flat; colormap(cmap.wbgyr);
+        
+        subplot(2,5,[2 7]);
+        pcolor(xx,E_CMOS_FAR,log10(image)); shading flat; colormap(cmap.wbgyr);
         xlim([xx(1) xx(end-1)])
-%         ylim([E_CMOS_FAR(1) 30])
+        ylim([E_CMOS_FAR(1) 30])
         caxis([1 4.5]);
         xlabel('x (mm)', 'fontsize', 26);
         ylabel('E (GeV)', 'fontsize', 26);
@@ -274,15 +269,27 @@ for i=1:n_common
         set(cb, 'YTick', [0 1 2 3 4]);
         set(cb, 'YTickLabel', [1 10 100 1000 10000]);
         set(gca, 'Fontsize', 20);
-        subplot(144);
+        
+        subplot(2,5,3);
+        pcolor(1:size(filt_img,2),1:size(filt_img,1),log10(filt_img)); shading flat; colormap(cmap.wbgyr);
+        ylim([1300 1900]); caxis([1 4.5]); daspect([1 1 1]);
+        title(['Shot ' num2str(CMOS_FAR.UID_common(i),'%d')], 'fontsize', 26);
+
+        subplot(2,5,8);
+        pcolor(1:size(filt_img2,2),1:size(filt_img,1),log10(filt_img2)); shading flat; colormap(cmap.wbgyr);
+        ylim([1300 1900]); caxis([1 4.5]); daspect([1 1 1]);
+        
+        subplot(2,5,[4 5 9 10]);
         plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum(:,i), 'b'); hold on;
-        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'r'); hold off;
+        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_2(:,i), 'g'); hold on;
+        plot(E_CMOS_FAR, CMOS_FAR.ana.energy_spectrum_3(:,i), 'r'); hold off;
         xlim([E_CMOS_FAR(1) 30]);
         ylim([-11 150]);
         xlabel('E (GeV)', 'fontsize', 26);
         ylabel('dQ/dE (pC/GeV)', 'fontsize', 26);
+        set(gca, 'XTick', 8:2:30);
         set(gca, 'Fontsize', 20);
-        legend({'Full Box', ['Small Box (' num2str(box_width) ' pix wide)']}, 'location', 'Northwest', 'fontsize', 18);
+        legend({'Full Box', ['Small Box (' num2str(CMOS_FAR.ana.roi.box_width) ' pix wide)'], 'Gaussian Subtraction'}, 'location', 'Northwest', 'fontsize', 18);
         if laser_on(i); string = 'laser_on'; else string = 'laser_off'; end;
         saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' string '_shots/' expt '_' dataset '_CMOS_FAR_' string '_Shot_' num2str(CMOS_FAR.UID_common(i),'%d')], 'png');
 %         saveas(3, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/shots/' expt '_' dataset '_CMOS_FAR_Shot_' num2str(CMOS_FAR.UID_common(i),'%d')], 'png');
@@ -296,13 +303,13 @@ end
 if exist(['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '.mat'], 'file')
     save(['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '.mat'], ...
         'data', 'laser_on', 'pyro_cut', 'EPICS_index', 'COMMON_UID', 'CMOS_FAR', ...
-        'cmos_far_roi', 'pix_E0', 'box_width', 'E_CMOS_FAR', 'ELANEX', 'elanex_roi', ...
+        'pix_E0', 'E_CMOS_FAR', 'ELANEX', 'elanex_roi', ...
         'PYRO', 'TORO', 'USTORO', 'DSTORO', 'n_common', 'n_step', 'step_num', 'step_val', ...
         'vals', '-append');
 else
     save(['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '.mat'], ...
         'data', 'laser_on', 'pyro_cut', 'EPICS_index', 'COMMON_UID', 'CMOS_FAR', ...
-        'cmos_far_roi', 'pix_E0', 'box_width', 'E_CMOS_FAR', 'ELANEX', 'elanex_roi', ...
+        'pix_E0', 'E_CMOS_FAR', 'ELANEX', 'elanex_roi', ...
         'PYRO', 'TORO', 'USTORO', 'DSTORO', 'n_common', 'n_step', 'step_num', 'step_val', ...
         'vals');
 end
@@ -332,7 +339,8 @@ for i=unique(step_num)
         k = 1;
         figure(4); clf;
         for j=shots
-            [CMOS_FAR, image] = image_ana(CMOS_FAR,1,cmos_far_roi,header,j);
+            tmp = load([header CMOS_FAR.dat_common{j}(1:end-4) '_medfilt']);
+            image = tmp.img(CMOS_FAR.ana.roi.top:CMOS_FAR.ana.roi.bottom,CMOS_FAR.ana.roi.left:CMOS_FAR.ana.roi.right);
             xx = ( (1:size(image,2)) - size(image,2)/2 ) * CMOS_FAR.RESOLUTION(j)*1e-3;
             image(image<1) = 1;
             figure(4);
@@ -351,7 +359,7 @@ for i=unique(step_num)
             pause(0.01);
             k = k+1;
         end
-%         saveas(4, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '_CMOS_FAR_Many_shots_' char(string) '_Step_' num2str(i)], 'png');
+        saveas(4, ['~/Dropbox/Data_Analysis/' expt '_' dataset '/' expt '_' dataset '_CMOS_FAR_Many_shots_' char(string) '_Step_' num2str(i)], 'png');
     end
 end
 
